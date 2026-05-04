@@ -36,12 +36,6 @@ const links = [
     role: "Identity",
   },
   {
-    name: "Anthropic Claude",
-    url: "https://anthropic.com",
-    caption: "Sonnet 4.6 narrator fallback path",
-    role: "Inference fallback",
-  },
-  {
     name: "Virtuals Protocol",
     url: "https://app.virtuals.io/acp",
     caption: "ACP marketplace listing · narrate_event + mantle_smart_money",

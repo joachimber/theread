@@ -1,7 +1,6 @@
 /**
- * Venice.ai client — calls Z.ai's GLM-5.1 (open-weights) as the primary
- * narrator. Same role Claude held; switched to make the agent's inference
- * path open-weights and Z.ai-aligned (Z.ai is a hackathon judge).
+ * Venice.ai client — calls Z.ai's open-weights GLM-5.1 as the narrator.
+ * E2EE inference path; the model itself is fully open-weights.
  */
 import { env } from "../lib/env.js";
 import { log } from "../lib/log.js";

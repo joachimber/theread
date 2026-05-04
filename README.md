@@ -26,7 +26,7 @@ Three loops, all running off live Mantle data:
 
 1. **Indexer** — viem-based RPC client streaming Transfer + Swap events on watched tokens (mETH, USDe, USDY, fBTC, MNT, USDC, USDT, WETH, WBTC). Coingecko prices, wallet rollups, heuristic labelers (whale, MEV, contracts, OP-Stack predeploys).
 2. **Detector** — three real detectors: price spike (% change vs window), volume spike (σ vs 24h baseline), whale move ($ threshold). Cooldowns prevent dupes; swap legs collapse so a routed DEX trade doesn't fire twice.
-3. **Narrator** — **Z.ai GLM-5.1** via Venice (E2EE inference, open-weights model) is the primary brain. Anthropic Claude is the fallback path. Templates always work.
+3. **Narrator** — **Z.ai GLM-5.1** via Venice. Open-weights model, E2EE inference. Templated fallback if the API call fails so the pipeline never blocks.
 
 Every alert is hashed and recorded on Mantle via `AgentIdentity.recordAlert(tokenId, hash, uri)` — an ERC-8004-shaped contract that gives the agent a verifiable, on-chain track record.
 
@@ -38,7 +38,7 @@ Every alert is hashed and recorded on Mantle via `AgentIdentity.recordAlert(toke
 
 > **What role does AI play?**
 >
-> The detector is statistical — it produces structured anomaly objects. The AI's job is *only* the last mile: rewrite a structured detection into a one-sentence narrative an analyst would say. We use Z.ai's open-weights GLM-5.1 (via Venice for E2EE inference). Claude is the fallback. Templates are the always-works floor. The agent never invents numbers — every figure in a narrative comes from the detector.
+> The detector is statistical — it produces structured anomaly objects. The AI's job is *only* the last mile: rewrite a structured detection into a one-sentence narrative an analyst would say. We use Z.ai's open-weights GLM-5.1 (via Venice for E2EE inference). Templated narratives are the always-works floor. The agent never invents numbers — every figure in a narrative comes from the detector.
 
 > **How does it generate verifiable value on Mantle?**
 >
@@ -69,8 +69,7 @@ Every alert is hashed and recorded on Mantle via `AgentIdentity.recordAlert(toke
               ┌─────────────▼─────────────┐                │
               │ Narrator                  │                │
               │ ① Z.ai GLM-5.1 via Venice │                │
-              │ ② Anthropic Claude        │                │
-              │ ③ template fallback       │                │
+              │ ② template fallback       │                │
               └─────────────┬─────────────┘                │
                             │ Alert                         │
        ┌─────────┬──────────┼──────────┬────────┐          │
@@ -194,7 +193,7 @@ End-to-end deploy time when DBs are pre-provisioned: ~30 minutes.
 | Component | Choice | Why |
 |---|---|---|
 | Chain | **Mantle** | Hackathon target. Deep DeFi (mETH/USDY/fBTC), cheap gas, ERC-8004 home. |
-| Inference | **Z.ai GLM-5.1** via **Venice** | Open weights, E2EE inference, Z.ai is a hackathon judge. Anthropic fallback. |
+| Inference | **Z.ai GLM-5.1** via **Venice** | Open weights, E2EE inference. |
 | Wallet intel | **Nansen** | Best smart-money labels in the space. Every wallet on the dashboard deep-links to Nansen for copy-trade research. |
 | Social signal | **Elfa AI** | Mindshare + trending tokens — the "what's social Twitter saying" layer over our on-chain feed. |
 | Identity | **ERC-8004** | Agent identity NFT + attestation log. Verifiable provenance. |
@@ -211,7 +210,7 @@ src/
 ├── db/         # Drizzle schema + client
 ├── indexer/    # block/transfer ingest, prices, label heuristics
 ├── detector/   # price/volume/whale detectors + cooldown
-├── narrator/   # Venice (Z.ai GLM-5.1) + Anthropic + template fallback
+├── narrator/   # Venice (Z.ai GLM-5.1) + template fallback
 ├── bot/        # Telegram + Discord delivery
 ├── scripts/    # backfill, seed, label, register-agent
 └── runner.ts   # single-process orchestrator

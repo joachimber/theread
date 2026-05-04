@@ -1,10 +1,7 @@
 /**
- * Venice.ai inference client used to call Z.ai's GLM-5.1 (open-source from
- * Zhiyuan AI) as the primary narrator. Same role Claude held; switched
- * because Z.ai is a hackathon judge and the open-weights pedigree fits the
- * "verifiable agent" pitch.
- *
- * Caches per-headline so we don't burn tokens on every dashboard render.
+ * Venice.ai inference client — calls Z.ai's open-weights GLM-5.1 as the
+ * narrator. E2EE inference. Caches per-headline so we don't burn tokens
+ * on every dashboard render.
  */
 
 const VENICE_URL = "https://api.venice.ai/api/v1/chat/completions";

@@ -21,7 +21,7 @@ mantle = "${MANTLE_RPC_URL}"
 mantle_sepolia = "https://rpc.sepolia.mantle.xyz"
 
 [etherscan]
-# Mantle's block explorer is mantlescan.xyz — get a free key at https://mantlescan.xyz/myapikey
-# (Etherscan v2 keys also work since Mantlescan is in the unified-API allowlist.)
-mantle = { key = "${MANTLESCAN_API_KEY}", url = "https://api.mantlescan.xyz/api", chain = 5000 }
-mantle_sepolia = { key = "${MANTLESCAN_API_KEY}", url = "https://api-sepolia.mantlescan.xyz/api", chain = 5003 }
+# Etherscan V2 unified API — one key works for all chains incl. Mantle.
+# Get a free key at https://etherscan.io/apis (or https://mantlescan.xyz/myapikey).
+mantle = { key = "${MANTLESCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=5000", chain = 5000 }
+mantle_sepolia = { key = "${MANTLESCAN_API_KEY}", url = "https://api.etherscan.io/v2/api?chainid=5003", chain = 5003 }

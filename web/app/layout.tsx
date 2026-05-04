@@ -41,8 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="eyebrow mb-3">Stack</div>
               <ul className="space-y-2 text-sm">
                 <li><a href="https://mantle.xyz" target="_blank" rel="noreferrer" className="hover:text-accent">Mantle Network ↗</a></li>
+                <li><a href="https://z.ai" target="_blank" rel="noreferrer" className="hover:text-accent">Z.ai GLM-5.1 ↗</a></li>
+                <li><a href="https://venice.ai" target="_blank" rel="noreferrer" className="hover:text-accent">Venice ↗</a></li>
                 <li><a href="https://eips.ethereum.org/EIPS/eip-8004" target="_blank" rel="noreferrer" className="hover:text-accent">ERC-8004 ↗</a></li>
-                <li><a href="https://anthropic.com" target="_blank" rel="noreferrer" className="hover:text-accent">Claude ↗</a></li>
               </ul>
             </div>
           </div>

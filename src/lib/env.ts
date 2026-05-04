@@ -8,8 +8,6 @@ const schema = z.object({
 
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 
-  ANTHROPIC_API_KEY: z.string().optional(),
-  NARRATOR_MODEL: z.string().default("claude-sonnet-4-6"),
   VENICE_API_KEY: z.string().optional(),
   VENICE_MODEL: z.string().default("zai-org-glm-5-1"),
   ELFA_API_KEY: z.string().optional(),
