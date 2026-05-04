@@ -60,7 +60,7 @@ export async function recordAttestation(
       transport: http(env.MANTLE_RPC_URL),
     });
 
-    const uri = `https://theread-frederik-busslercos-projects.vercel.app/agent`;
+    const uri = `https://thereadmantle.vercel.app/agent`;
     const txHash = await wallet.writeContract({
       address: env.AGENT_IDENTITY_ADDRESS as `0x${string}`,
       abi: agentIdentityAbi,
