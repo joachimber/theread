@@ -5,18 +5,25 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "Menlo", "monospace"],
+        display: ["var(--font-geist-sans)", "Inter", "sans-serif"],
       },
       colors: {
-        bg: "#0a0a0a",
-        panel: "#101010",
-        line: "#1a1a1a",
-        ink: "#f5f5f5",
-        dim: "#7a7a7a",
-        accent: "#00ff88",
-        warn: "#ffb020",
-        red: "#ff5555",
+        bg: "#060606",
+        panel: "#0e0e0e",
+        line: "#1c1c1c",
+        ink: "#f0f0f0",
+        dim: "#6f6f6f",
+        accent: "#5cf2a4",
+        warn: "#ffc14d",
+        red: "#ff6464",
+      },
+      letterSpacing: {
+        tightest: "-0.025em",
+      },
+      maxWidth: {
+        page: "1400px",
       },
     },
   },
