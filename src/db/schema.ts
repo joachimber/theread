@@ -173,6 +173,8 @@ export const alerts = pgTable(
     attestationTx: varchar("attestation_tx", { length: 66 }),
     deliveredTelegram: boolean("delivered_telegram").default(false).notNull(),
     deliveredDiscord: boolean("delivered_discord").default(false).notNull(),
+    /** marked when the daily digest job promotes this alert to "Read of the Day". */
+    isDaily: boolean("is_daily").default(false).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => ({

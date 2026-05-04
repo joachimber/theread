@@ -18,6 +18,8 @@ import {
   type WalletMover,
   type ParsedTransfer,
 } from "../lib/live-mantle";
+import { getReadOfTheDay } from "../lib/queries";
+import { ReadOfTheDay } from "../components/ReadOfTheDay";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 30;
@@ -49,6 +51,7 @@ export default async function HomePage() {
     return <ErrorState err={String(err)} />;
   }
 
+  const readOfTheDay = await getReadOfTheDay().catch(() => null);
   const hero = snap.alerts[0];
   const rest = snap.alerts.slice(1, 7);
   const totalVolume = snap.topByToken.reduce((acc, t) => acc + t.volumeUsd, 0);
@@ -119,13 +122,26 @@ export default async function HomePage() {
       </section>
 
       <div id="feed" className="max-w-page mx-auto px-4 md:px-6 pt-10 md:pt-20 pb-16 md:pb-24 flex flex-col gap-12 md:gap-16">
-        {/* SPOTLIGHT */}
+        {/* READ OF THE DAY — pinned editor's pick */}
+        {readOfTheDay ? (
+          <section>
+            <SectionHeader
+              eyebrow="The Read · today's edition"
+              title="One curated story per day"
+              description="Selected from the past 24 hours by composite score (severity × USD). Posted to Telegram at 00:00 UTC and pinned on-chain via ERC-8004."
+              meta="daily digest"
+            />
+            <ReadOfTheDay alert={readOfTheDay} />
+          </section>
+        ) : null}
+
+        {/* SPOTLIGHT — live window */}
         {hero ? (
           <section>
             <SectionHeader
-              eyebrow="Spotlight"
-              title="The latest read"
-              description="Highest-severity alert in the live window. Same payload that ships to Telegram."
+              eyebrow="Spotlight · live"
+              title="What's happening right now"
+              description="Highest-severity alert in the past 8 minutes. Same payload that ships to Telegram in real time."
               meta={`block ${snap.blockNumber.toLocaleString()}`}
             />
             <HeroAlert

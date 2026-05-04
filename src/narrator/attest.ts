@@ -37,13 +37,13 @@ export async function recordAttestation(
   }
 
   // 24h rolling cap — count attestations actually written on-chain
-  const [{ c }] = (await db.execute<{ c: string }>(sql`
+  const rows = (await db.execute<{ c: string }>(sql`
     SELECT COUNT(*)::text AS c
     FROM ${alertsTable}
     WHERE attestation_tx IS NOT NULL
       AND created_at >= NOW() - INTERVAL '24 hours'
   `)) as unknown as Array<{ c: string }>;
-  const todayCount = Number(c ?? 0);
+  const todayCount = Number(rows[0]?.c ?? 0);
   if (todayCount >= env.ATTESTATION_DAILY_CAP) {
     log.warn(
       { alertId, todayCount, cap: env.ATTESTATION_DAILY_CAP },

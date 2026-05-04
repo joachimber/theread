@@ -83,6 +83,32 @@ export interface AlertRow {
   createdAt: Date;
 }
 
+/** The day's editor's pick — single most-significant alert in the past 24h. */
+export async function getReadOfTheDay(): Promise<AlertRow | null> {
+  try {
+    const rows = await db
+      .select({
+        id: alerts.id,
+        kind: alerts.kind,
+        severity: alerts.severity,
+        token: alerts.token,
+        headline: alerts.headline,
+        narrative: alerts.narrative,
+        txUrl: alerts.txUrl,
+        attestationTx: alerts.attestationTx,
+        alertHash: alerts.alertHash,
+        createdAt: alerts.createdAt,
+      })
+      .from(alerts)
+      .where(sql`${alerts.createdAt} >= NOW() - INTERVAL '24 hours'`)
+      .orderBy(desc(alerts.severity), desc(alerts.createdAt))
+      .limit(1);
+    return rows[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getRecentAlerts(limit = 50): Promise<AlertRow[]> {
   return withDemoFallback<AlertRow[]>(
     async () => {

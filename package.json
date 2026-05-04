@@ -15,6 +15,7 @@
     "label": "tsx src/scripts/label-known-wallets.ts",
     "seed": "tsx src/scripts/seed-demo.ts",
     "register-agent": "tsx src/scripts/register-agent.ts",
+    "daily-digest": "tsx src/scripts/daily-digest.ts",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
