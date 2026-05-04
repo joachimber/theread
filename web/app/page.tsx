@@ -12,6 +12,7 @@ import { BuiltOn } from "../components/BuiltOn";
 import { CTABanner } from "../components/CTABanner";
 import { MindshareStrip } from "../components/MindshareStrip";
 import { AvailableOnVirtuals } from "../components/AvailableOnVirtuals";
+import { Receipts } from "../components/Receipts";
 import {
   getLiveSnapshot,
   type LiveAlert,
@@ -359,6 +360,7 @@ export default async function HomePage() {
         </section>
 
         <HowItWorks />
+        <Receipts />
         <AvailableOnVirtuals />
         <BuiltOn />
         <CTABanner />

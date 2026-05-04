@@ -21,10 +21,12 @@ const schema = z.object({
   INDEXER_BATCH_SIZE: z.coerce.number().default(100),
   INDEXER_POLL_MS: z.coerce.number().default(2000),
 
-  PRICE_SPIKE_PCT: z.coerce.number().default(3.0),
+  PRICE_SPIKE_PCT: z.coerce.number().default(1.5),
   PRICE_SPIKE_WINDOW_MIN: z.coerce.number().default(15),
-  VOLUME_SPIKE_SIGMA: z.coerce.number().default(3.0),
-  WHALE_USD_THRESHOLD: z.coerce.number().default(250_000),
+  VOLUME_SPIKE_SIGMA: z.coerce.number().default(2.0),
+  /** USD floor for "whale" alerts. Mantle has steady $K-flow not $M-flow, so
+   *  the threshold has to live near where the chain actually trades. */
+  WHALE_USD_THRESHOLD: z.coerce.number().default(50_000),
   ALERT_COOLDOWN_MIN: z.coerce.number().default(30),
   /** Skip on-chain attestation for alerts below this severity (1-5).
    *  Default 5 = only the highest-conviction calls + the daily digest get pinned. */
