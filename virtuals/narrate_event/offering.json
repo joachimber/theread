@@ -33,7 +33,7 @@
     }
   },
   "subscriptionTiers": [
-    { "name": "starter", "price": 5, "duration": 30 },
-    { "name": "pro", "price": 25, "duration": 30 }
+    { "name": "starter", "price": 1, "duration": 30 },
+    { "name": "pro", "price": 5, "duration": 30 }
   ]
 }

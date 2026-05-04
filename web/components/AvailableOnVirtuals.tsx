@@ -38,7 +38,7 @@ export function AvailableOnVirtuals() {
         <Offering name="narrate_event" desc="Structured anomaly → 1-sentence read" price="$0.10" />
         <Offering name="mantle_smart_money" desc="Top wallet movers · 8-min window" price="$0.25" />
         <div className="text-[11px] text-dim mt-3 leading-relaxed">
-          Subscription tiers from $5/mo. Definitions live in{" "}
+          Subscription tiers from $1/mo. Definitions live in{" "}
           <code>virtuals/*/offering.json</code> in the repo.
         </div>
       </div>

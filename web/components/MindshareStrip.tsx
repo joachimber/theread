@@ -9,6 +9,7 @@ function fmtChange(pct: number): { text: string; tone: string } {
 export async function MindshareStrip() {
   const snap = await getElfaMindshare();
   const isPlaceholder = snap.source === "placeholder";
+  const isStale = snap.source === "elfa-stale";
 
   return (
     <section className="border border-line bg-paper">
@@ -32,10 +33,19 @@ export async function MindshareStrip() {
           </p>
           {isPlaceholder ? (
             <div className="mt-4 text-[11px] text-warn leading-relaxed border-l-2 border-warn pl-3">
-              Set <code className="bg-line-2 px-1.5 py-0.5">ELFA_API_KEY</code> to enable.
-              Free tier covers 1,000 calls/month.
+              Live mindshare unavailable — set <code className="bg-line-2 px-1.5 py-0.5">ELFA_API_KEY</code>
+              {" "}or wait for the next cache refresh.
             </div>
-          ) : null}
+          ) : isStale ? (
+            <div className="mt-4 text-[11px] text-dim leading-relaxed border-l-2 border-dim pl-3">
+              Showing the last cached snapshot. Mindshare refreshes every 12 hours so we stay well
+              under the 30-call/day free tier.
+            </div>
+          ) : (
+            <div className="mt-4 text-[11px] text-dim leading-relaxed">
+              Refreshes every 12 hours · ~2 upstream calls/day.
+            </div>
+          )}
         </div>
 
         <div className="border-b lg:border-b-0 lg:border-r border-line">
