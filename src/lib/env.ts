@@ -26,10 +26,11 @@ const schema = z.object({
   VOLUME_SPIKE_SIGMA: z.coerce.number().default(3.0),
   WHALE_USD_THRESHOLD: z.coerce.number().default(250_000),
   ALERT_COOLDOWN_MIN: z.coerce.number().default(30),
-  /** Skip on-chain attestation for alerts below this severity (1-5). */
-  ATTESTATION_SEVERITY_FLOOR: z.coerce.number().default(3),
+  /** Skip on-chain attestation for alerts below this severity (1-5).
+   *  Default 5 = only the highest-conviction calls + the daily digest get pinned. */
+  ATTESTATION_SEVERITY_FLOOR: z.coerce.number().default(5),
   /** Hard daily cap on on-chain attestations to bound MNT burn. */
-  ATTESTATION_DAILY_CAP: z.coerce.number().default(30),
+  ATTESTATION_DAILY_CAP: z.coerce.number().default(10),
 
   AGENT_IDENTITY_ADDRESS: z.string().optional(),
   AGENT_TOKEN_ID: z.string().optional(),

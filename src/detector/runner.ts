@@ -42,6 +42,11 @@ async function handleDetection(d: Detection): Promise<void> {
   if (await isOnCooldown(d.cooldownKey)) return;
   await setCooldown(d.cooldownKey, env.ALERT_COOLDOWN_MIN);
 
+  // Telegram floor — only ship sev ≥3 to the channel so it doesn't get spammy.
+  // Lower-severity alerts still land in the dashboard; they're skipped from
+  // the broadcast feed and from on-chain attestation.
+  const shouldBroadcast = d.severity >= 3;
+
   const narrative = await narrate(d).catch((err) => {
     log.warn({ err: String(err) }, "narrator failed; falling back to headline");
     return d.headline;
@@ -78,7 +83,11 @@ async function handleDetection(d: Detection): Promise<void> {
     "alert",
   );
 
-  await dispatchAlert({ id: alertId, headline: d.headline, narrative, severity: d.severity, txUrl, kind: d.kind, token: d.token });
+  if (shouldBroadcast) {
+    await dispatchAlert({ id: alertId, headline: d.headline, narrative, severity: d.severity, txUrl, kind: d.kind, token: d.token });
+  } else {
+    log.debug({ alertId, severity: d.severity }, "alert below broadcast floor, dashboard-only");
+  }
   void recordAttestation(alertId, alertHash, d.severity);
 }
 
