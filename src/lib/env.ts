@@ -1,0 +1,44 @@
+import "dotenv/config";
+import { z } from "zod";
+
+const schema = z.object({
+  MANTLE_RPC_URL: z.string().url().default("https://rpc.mantle.xyz"),
+  MANTLE_WS_URL: z.string().default("wss://ws.mantle.xyz"),
+  MANTLE_CHAIN_ID: z.coerce.number().default(5000),
+
+  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+
+  ANTHROPIC_API_KEY: z.string().optional(),
+  NARRATOR_MODEL: z.string().default("claude-sonnet-4-6"),
+
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_CHANNEL_ID: z.string().optional(),
+  DISCORD_WEBHOOK_URL: z.string().url().optional().or(z.literal("")),
+
+  INDEXER_START_BLOCK: z.coerce.number().optional(),
+  INDEXER_BATCH_SIZE: z.coerce.number().default(100),
+  INDEXER_POLL_MS: z.coerce.number().default(2000),
+
+  PRICE_SPIKE_PCT: z.coerce.number().default(3.0),
+  PRICE_SPIKE_WINDOW_MIN: z.coerce.number().default(15),
+  VOLUME_SPIKE_SIGMA: z.coerce.number().default(3.0),
+  WHALE_USD_THRESHOLD: z.coerce.number().default(250_000),
+  ALERT_COOLDOWN_MIN: z.coerce.number().default(10),
+
+  AGENT_IDENTITY_ADDRESS: z.string().optional(),
+  AGENT_TOKEN_ID: z.string().optional(),
+  DEPLOYER_PRIVATE_KEY: z.string().optional(),
+
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+});
+
+export type Env = z.infer<typeof schema>;
+
+export const env: Env = (() => {
+  const parsed = schema.safeParse(process.env);
+  if (!parsed.success) {
+    console.error("Invalid environment:", parsed.error.flatten().fieldErrors);
+    process.exit(1);
+  }
+  return parsed.data;
+})();
