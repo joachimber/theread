@@ -86,11 +86,20 @@ export default async function HomePage() {
               alert hash on-chain via an ERC-8004 agent identity NFT.
             </p>
             <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-6 md:mt-9">
-              <TelegramButton size="lg" />
-              <a href="#feed" className="btn-ghost text-sm">
-                See live feed ↓
+              <TelegramButton size="lg" label="Open in Telegram · free" />
+              <a
+                href="https://app.virtuals.io/acp"
+                target="_blank"
+                rel="noreferrer"
+                className="btn-ghost text-sm"
+              >
+                Hire as an agent on Virtuals ↗
               </a>
             </div>
+            <p className="mt-3 text-[12px] text-dim">
+              Free for humans. Per-call USDC for agents.{" "}
+              <a href="#feed" className="link">See live feed ↓</a>
+            </p>
           </div>
           <aside className="border-t lg:border-t-0 lg:border-l border-line pt-7 lg:pt-0 lg:pl-10">
             <div className="grid grid-cols-2 gap-y-4 md:gap-y-5 text-sm">

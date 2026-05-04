@@ -39,12 +39,20 @@ export function Header() {
             Agent
           </Link>
           <a
-            href="https://github.com/Virtual-Protocol/openclaw-acp"
+            href="https://github.com/joachimber/theread"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden md:inline-flex px-2 md:px-3 py-1.5 text-ink-2 hover:text-ink hover:bg-line-2 transition-colors text-[13px] md:text-sm"
+          >
+            GitHub ↗
+          </a>
+          <a
+            href="https://app.virtuals.io/acp"
             target="_blank"
             rel="noreferrer"
             className="hidden lg:inline-flex px-3 py-1.5 text-ink-2 hover:text-ink hover:bg-line-2 transition-colors"
           >
-            Docs
+            Virtuals ↗
           </a>
           <span className="ml-0.5 md:ml-2">
             <span className="hidden sm:inline">
