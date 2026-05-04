@@ -15,7 +15,7 @@ export interface AlertCardData {
   usd?: number;
 }
 
-const KIND_TONE: Record<string, string> = {
+const KIND_COLOR: Record<string, string> = {
   price_spike: "text-accent",
   volume_spike: "text-warn",
   whale_move: "text-ink",
@@ -23,44 +23,44 @@ const KIND_TONE: Record<string, string> = {
 };
 
 export function AlertCard({ a }: { a: AlertCardData }) {
-  const tone = KIND_TONE[a.kind] ?? "text-ink";
+  const tone = KIND_COLOR[a.kind] ?? "text-ink";
   const sigPip = "■".repeat(Math.max(1, Math.min(5, a.severity)));
   return (
-    <article className="border border-line bg-panel hover:border-line/0 hover:outline hover:outline-1 hover:outline-accent/30 transition-colors row-hover p-5 flex flex-col gap-3 min-h-[180px]">
-      <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-dim">
+    <article className="border-r border-b border-line bg-paper p-5 flex flex-col gap-3 min-h-[200px] row-hover">
+      <div className="flex items-center justify-between eyebrow">
         <div className="flex items-center gap-2">
-          <span className={tone}>{a.kind.replace("_", " ")}</span>
+          <span className={`${tone}`}>{a.kind.replace("_", " ")}</span>
           {a.token ? (
             <>
               <span className="text-line">/</span>
-              <span>{a.token}</span>
+              <span className="text-dim">{a.token}</span>
             </>
           ) : null}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-dim">
           <span className={`tabular-nums ${tone}`}>{sigPip}</span>
           <span>{a.ago}</span>
         </div>
       </div>
 
-      <h3 className={`text-xl tracking-tight font-semibold leading-tight ${tone}`}>{a.headline}</h3>
-      <p className="text-sm text-ink/80 leading-relaxed">{a.narrative}</p>
+      <h3 className={`text-[20px] tracking-tighter font-semibold leading-[1.15] ${tone}`}>{a.headline}</h3>
+      <p className="text-[14px] text-ink-2 leading-[1.55]">{a.narrative}</p>
 
       <div className="mt-auto flex items-center justify-between text-xs">
         <div className="flex items-center gap-3 text-dim">
           {a.txUrl ? (
-            <a href={a.txUrl} target="_blank" rel="noreferrer" className="hover:text-accent">
+            <a href={a.txUrl} target="_blank" rel="noreferrer" className="link">
               tx ↗
             </a>
           ) : null}
-          <span>·</span>
+          {a.txUrl ? <span>·</span> : null}
           <span>
             {a.attestationTx ? (
               <a
                 href={`https://mantlescan.xyz/tx/${a.attestationTx}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-accent hover:underline"
+                className="link"
               >
                 attested ↗
               </a>
@@ -71,7 +71,7 @@ export function AlertCard({ a }: { a: AlertCardData }) {
         </div>
         {a.spark?.length ? (
           <div className={tone}>
-            <Sparkline values={a.spark} width={60} height={18} />
+            <Sparkline values={a.spark} width={68} height={20} fill="currentColor" />
           </div>
         ) : null}
       </div>

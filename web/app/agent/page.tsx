@@ -1,9 +1,11 @@
 import { StatBlock } from "../../components/StatBlock";
 import { AutoRefresh } from "../../components/AutoRefresh";
+import { SectionHeader } from "../../components/SectionHeader";
+import { TelegramButton } from "../../components/TelegramButton";
 import { getLiveSnapshot, type LiveAlert } from "../../lib/live-mantle";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 30;
 
 function fmtUsd(n: number, prec = 2): string {
   const a = Math.abs(n);
@@ -14,8 +16,6 @@ function fmtUsd(n: number, prec = 2): string {
 }
 
 function alertHash(a: LiveAlert): string {
-  // deterministic short pseudo-hash for the demo log; real attestation hash
-  // is computed by the detector pipeline once an indexer is connected.
   let acc = 0;
   for (const c of a.id + a.token + a.headline) acc = (acc * 31 + c.charCodeAt(0)) >>> 0;
   return ("0x" + acc.toString(16).padStart(8, "0")).repeat(2).slice(0, 18);
@@ -32,59 +32,63 @@ export default async function AgentPage() {
   }
 
   const total = snap?.alerts.length ?? 0;
-  const attested = total; // in live mode every emitted alert would be attested by the detector
+  const attested = total;
   const hasIdentity = !!process.env.AGENT_IDENTITY_ADDRESS;
-  const identityAddr = process.env.AGENT_IDENTITY_ADDRESS ?? "0x4f7Ed5a05Cb02d92F75c1A8a6dB0E6f3D1E7c2BA";
+  const identityAddr =
+    process.env.AGENT_IDENTITY_ADDRESS ?? "0x0000000000000000000000000000000000000000";
   const tokenId = process.env.AGENT_TOKEN_ID ?? "1";
 
   return (
     <>
-      <AutoRefresh ms={20_000} />
-      <div className="max-w-page mx-auto px-6 pt-10 pb-20">
-        <div className="flex items-end justify-between mb-7 gap-6">
+      <AutoRefresh ms={30_000} />
+      <section className="border-b border-line">
+        <div className="max-w-page mx-auto px-6 pt-12 md:pt-16 pb-10 grid lg:grid-cols-[1.5fr_1fr] gap-10 items-end">
           <div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-dim">ERC-8004 · Agent identity</span>
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tightest leading-[1.05] mt-2">
+            <div className="eyebrow mb-3">ERC-8004 · Agent identity</div>
+            <h1 className="text-display-md font-semibold text-ink">
               The Read&apos;s on-chain
               <br />
               <span className="text-accent">track record.</span>
             </h1>
-            <p className="text-sm text-dim mt-3 max-w-xl">
+            <p className="text-[16px] text-ink-2 mt-5 max-w-2xl leading-[1.55]">
               Every alert this agent emits is hashed and pinned on Mantle via{" "}
-              <code className="text-ink">AgentIdentity.recordAlert(tokenId, hash, uri)</code>. Anyone can audit the agent&apos;s
-              history after the fact — verifiable provenance, not screenshots.
+              <code>AgentIdentity.recordAlert(tokenId, hash, uri)</code>. Anyone can audit the agent&apos;s history
+              after the fact — verifiable provenance, not screenshots.
             </p>
+            <div className="mt-6">
+              <TelegramButton size="md" label="Get every alert in Telegram" />
+            </div>
           </div>
-          <div className="hidden md:flex flex-col items-end gap-1 text-xs text-dim">
-            <span>token id <span className="text-ink font-mono">{tokenId}</span></span>
-            <span>standard <span className="text-ink">ERC-8004 (draft)</span></span>
-            <span>network <span className="text-ink">Mantle</span></span>
-          </div>
+          <aside className="border-l-0 lg:border-l border-line lg:pl-10 grid grid-cols-2 gap-y-5 text-sm">
+            <Stat k="Token id" v={`#${tokenId}`} />
+            <Stat k="Standard" v="ERC-8004" />
+            <Stat k="Network" v="Mantle" />
+            <Stat k="Verified" v={hasIdentity ? "yes" : "after deploy"} tone={hasIdentity ? "up" : "warn"} />
+          </aside>
         </div>
+      </section>
 
+      <div className="max-w-page mx-auto px-6 py-14 flex flex-col gap-14">
         {err ? (
-          <div className="text-sm text-warn mb-8 border border-line p-4 bg-panel">RPC error: {err}</div>
+          <div className="text-sm text-warn border border-line bg-paper p-4">RPC error: {err}</div>
         ) : null}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-line mb-10">
+        <section className="grid grid-cols-2 md:grid-cols-4 border-l border-t border-line bg-paper">
           <StatBlock label="Live alerts" value={total.toString()} sub="current window" tone="up" />
-          <StatBlock label="On-chain attestations" value={attested.toString()} sub={total > 0 ? "100% of alerts" : "—"} tone="up" />
-          <StatBlock label="Token id" value={`#${tokenId}`} sub={hasIdentity ? "minted" : "demo"} />
-          <StatBlock label="Network" value="Mantle" sub={hasIdentity ? "deployed" : "deploy via foundry"} />
-        </div>
-
-        <section className="mb-10 border border-line bg-panel p-6 relative overflow-hidden">
-          <div
-            className="absolute inset-0 pointer-events-none opacity-[0.05]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right, #5cf2a4 1px, transparent 1px), linear-gradient(to bottom, #5cf2a4 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
+          <StatBlock
+            label="On-chain attestations"
+            value={attested.toString()}
+            sub={total > 0 ? "100% of alerts" : "—"}
+            tone="up"
           />
-          <div className="relative grid md:grid-cols-[1fr_300px] gap-8 items-start">
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.2em] text-dim mb-2">Identity contract</div>
+          <StatBlock label="Token id" value={`#${tokenId}`} sub={hasIdentity ? "minted" : "demo only"} />
+          <StatBlock label="Network" value="Mantle" sub={hasIdentity ? "deployed" : "deploy via foundry"} />
+        </section>
+
+        <section className="grid md:grid-cols-[1.5fr_1fr] border-l border-t border-line bg-paper">
+          <div className="border-r border-b border-line p-7 flex flex-col gap-3">
+            <div className="eyebrow">Identity contract</div>
+            {hasIdentity ? (
               <a
                 href={`https://mantlescan.xyz/address/${identityAddr}`}
                 target="_blank"
@@ -93,51 +97,67 @@ export default async function AgentPage() {
               >
                 {identityAddr}
               </a>
-              <p className="text-xs text-dim mt-4 max-w-md">
-                {hasIdentity ? (
-                  <>Live contract deployed and registered. Each alert posts <code className="text-ink">recordAlert(tokenId, hash, uri)</code> with the canonical context hash and a URL pointing back at this dashboard.</>
-                ) : (
-                  <>Deploy{" "}<code className="text-ink">contracts/src/AgentIdentity.sol</code> with{" "}<code className="text-ink">forge script script/Deploy.s.sol --broadcast</code>{" "}then set{" "}<code className="text-ink">AGENT_IDENTITY_ADDRESS</code>{" "}in <code className="text-ink">.env</code>. The detector will start posting attestations on every alert.</>
-                )}
-              </p>
-            </div>
-            <div className="text-xs text-dim flex flex-col gap-2">
-              <div className="flex justify-between border-b border-line py-1.5">
-                <span>contract</span><span className="text-ink">AgentIdentity.sol</span>
-              </div>
-              <div className="flex justify-between border-b border-line py-1.5">
-                <span>tests passing</span><span className="text-accent">10 / 10</span>
-              </div>
-              <div className="flex justify-between border-b border-line py-1.5">
-                <span>fuzz cases</span><span className="text-ink">256</span>
-              </div>
-              <div className="flex justify-between border-b border-line py-1.5">
-                <span>solc</span><span className="text-ink">0.8.24</span>
-              </div>
-              <div className="flex justify-between py-1.5">
-                <span>verified</span><span className={hasIdentity ? "text-accent" : "text-dim"}>{hasIdentity ? "yes" : "after deploy"}</span>
-              </div>
+            ) : (
+              <div className="font-mono text-ink-2 break-all text-sm">{identityAddr}</div>
+            )}
+            <p className="text-sm text-ink-2 max-w-md leading-relaxed">
+              {hasIdentity ? (
+                <>
+                  Live contract deployed and registered. Each alert posts{" "}
+                  <code>recordAlert(tokenId, hash, uri)</code> with the canonical context hash and a URL pointing
+                  back at this dashboard.
+                </>
+              ) : (
+                <>
+                  Deploy <code>contracts/src/AgentIdentity.sol</code> with{" "}
+                  <code>forge script script/Deploy.s.sol --broadcast</code>, then set{" "}
+                  <code>AGENT_IDENTITY_ADDRESS</code> in <code>.env</code>. The detector will start posting
+                  attestations on every alert.
+                </>
+              )}
+            </p>
+          </div>
+          <div className="border-r border-b border-line p-7 text-sm text-ink-2">
+            <div className="eyebrow mb-4">Contract details</div>
+            <div className="flex flex-col gap-2.5">
+              <Row k="Source" v="AgentIdentity.sol" />
+              <Row k="solc" v="0.8.24" />
+              <Row k="Tests passing" v="10 / 10" tone="up" />
+              <Row k="Fuzz cases" v="256" />
+              <Row k="License" v="MIT" />
             </div>
           </div>
         </section>
 
         <section>
-          <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
-            <h2 className="text-xs uppercase tracking-[0.2em] text-dim">Attestation log · live window</h2>
-            <span className="text-xs text-dim">{snap?.alerts.length ?? 0} entries</span>
-          </div>
+          <SectionHeader
+            eyebrow="Attestation log · live window"
+            title="Every alert, hashed and pinned"
+            description="Pseudo-hashes shown for the demo. Once the contract is deployed and AGENT_IDENTITY_ADDRESS is set, real attestation tx hashes appear here."
+            meta={`${snap?.alerts.length ?? 0} entries`}
+          />
 
           {snap && snap.alerts.length > 0 ? (
-            <div className="border border-line">
+            <div className="border border-line bg-paper">
+              <div className="grid grid-cols-[100px_2fr_1.5fr_200px_100px] gap-3 px-5 py-2.5 eyebrow border-b border-line">
+                <div>Kind</div>
+                <div>Headline</div>
+                <div>Narrative</div>
+                <div>Hash</div>
+                <div className="text-right">Status</div>
+              </div>
               {snap.alerts.map((a) => (
-                <div key={a.id} className="grid grid-cols-[80px_1.5fr_240px_180px_120px] gap-3 px-4 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover">
-                  <span className="text-dim text-[10px] uppercase tracking-widest">{a.kind.replace("_", " ")}</span>
-                  <span className="font-medium tracking-tight">{a.headline}</span>
-                  <span className="text-dim text-xs">{a.narrative.slice(0, 80)}{a.narrative.length > 80 ? "…" : ""}</span>
-                  <span className="font-mono text-[10px] text-dim">{alertHash(a)}…</span>
+                <div
+                  key={a.id}
+                  className="grid grid-cols-[100px_2fr_1.5fr_200px_100px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                >
+                  <span className="eyebrow">{a.kind.replace("_", " ")}</span>
+                  <span className="font-medium tracking-tighter text-ink truncate">{a.headline}</span>
+                  <span className="text-dim text-xs truncate">{a.narrative}</span>
+                  <span className="font-mono text-[10px] text-dim truncate">{alertHash(a)}…</span>
                   <span className="text-right">
                     {a.txUrl ? (
-                      <a href={a.txUrl} target="_blank" rel="noreferrer" className="text-accent text-xs hover:underline">
+                      <a href={a.txUrl} target="_blank" rel="noreferrer" className="link text-xs">
                         proof ↗
                       </a>
                     ) : (
@@ -148,29 +168,33 @@ export default async function AgentPage() {
               ))}
             </div>
           ) : (
-            <div className="border border-line p-12 text-sm text-dim text-center">
+            <div className="border border-line bg-paper p-10 text-sm text-dim text-center">
               No alerts in the current window. The detector stays patient.
             </div>
           )}
         </section>
 
         {snap && snap.transfers.length > 0 ? (
-          <section className="mt-10">
-            <div className="flex items-center justify-between mb-3 border-b border-line pb-2">
-              <h2 className="text-xs uppercase tracking-[0.2em] text-dim">Largest transfers · raw chain data</h2>
-              <span className="text-xs text-dim">{snap.transfers.length} indexed</span>
-            </div>
-            <div className="border border-line">
+          <section>
+            <SectionHeader
+              eyebrow="Largest transfers · raw chain"
+              title="The data underneath the narratives"
+              description="Pulled directly off Mantle's public RPC. Click a row to inspect on Mantlescan."
+              meta={`${snap.transfers.length} parsed`}
+            />
+            <div className="border border-line bg-paper">
               {snap.transfers.slice(0, 8).map((t) => (
                 <a
-                  key={t.txHash}
+                  key={`${t.txHash}-${t.logIndex}`}
                   href={`https://mantlescan.xyz/tx/${t.txHash}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="grid grid-cols-[80px_1fr_1fr_120px] gap-3 px-4 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[80px_1fr_1fr_120px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
-                  <span className="text-[10px] uppercase tracking-widest text-dim">{t.symbol}</span>
-                  <span className="font-mono text-xs">{t.fromAddr.slice(0, 10)}… → {t.toAddr.slice(0, 10)}…</span>
+                  <span className="font-medium tracking-tighter">{t.symbol}</span>
+                  <span className="font-mono text-xs text-ink-2">
+                    {t.fromAddr.slice(0, 10)}… → {t.toAddr.slice(0, 10)}…
+                  </span>
                   <span className="text-dim text-xs">block {t.blockNumber.toLocaleString()}</span>
                   <span className="text-right tabular-nums">{fmtUsd(t.usdValue, 0)}</span>
                 </a>
@@ -180,5 +204,25 @@ export default async function AgentPage() {
         ) : null}
       </div>
     </>
+  );
+}
+
+function Stat({ k, v, tone }: { k: string; v: string; tone?: "up" | "warn" | "down" }) {
+  const c = tone === "up" ? "text-accent" : tone === "warn" ? "text-warn" : tone === "down" ? "text-red" : "text-ink";
+  return (
+    <div>
+      <div className="eyebrow text-[10px] mb-1">{k}</div>
+      <div className={`tabular-nums text-[18px] tracking-tighter font-semibold ${c}`}>{v}</div>
+    </div>
+  );
+}
+
+function Row({ k, v, tone }: { k: string; v: string; tone?: "up" }) {
+  const c = tone === "up" ? "text-accent" : "text-ink";
+  return (
+    <div className="flex justify-between border-b border-line pb-1.5 text-xs">
+      <span className="text-dim">{k}</span>
+      <span className={`font-mono ${c}`}>{v}</span>
+    </div>
   );
 }

@@ -26,11 +26,11 @@ function fmtPrice(n: number | null): string {
 
 export function TokenBoard({ rows }: { rows: Row[] }) {
   if (rows.length === 0) {
-    return <div className="text-sm text-dim p-4 border border-line">No token activity in the window.</div>;
+    return <div className="text-sm text-dim p-5 border border-line bg-paper">No token activity in the window.</div>;
   }
   return (
-    <div className="border border-line">
-      <div className="grid grid-cols-[1fr_92px_72px_1fr_64px] gap-3 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] text-dim border-b border-line bg-panel/60">
+    <div className="border border-line bg-paper">
+      <div className="grid grid-cols-[1fr_104px_84px_1fr_72px] gap-3 px-5 py-3 eyebrow border-b border-line">
         <div>Token</div>
         <div className="text-right">Price</div>
         <div className="text-right">24h</div>
@@ -42,20 +42,20 @@ export function TokenBoard({ rows }: { rows: Row[] }) {
         return (
           <div
             key={r.symbol}
-            className="grid grid-cols-[1fr_92px_72px_1fr_64px] gap-3 px-4 py-3 text-sm items-center border-b border-line last:border-b-0 row-hover"
+            className="grid grid-cols-[1fr_104px_84px_1fr_72px] gap-3 px-5 py-3.5 text-sm items-center border-b border-line last:border-b-0 row-hover"
           >
-            <div className="font-medium tracking-tight">{r.symbol}</div>
+            <div className="font-medium tracking-tighter text-[15px]">{r.symbol}</div>
             <div className="text-right tabular-nums">{fmtPrice(r.priceUsd)}</div>
-            <div className={`text-right tabular-nums ${tone}`}>
+            <div className={`text-right tabular-nums text-xs ${tone}`}>
               {r.change24h !== null
                 ? `${(r.change24h ?? 0) >= 0 ? "+" : ""}${r.change24h.toFixed(2)}%`
                 : "—"}
             </div>
-            <div className="flex items-center gap-2.5 text-dim">
+            <div className="flex items-center gap-3 text-dim">
               <div className={tone}>
-                <Sparkline values={r.spark} width={88} height={18} fill="currentColor" />
+                <Sparkline values={r.spark} width={92} height={20} fill="currentColor" />
               </div>
-              <span className="tabular-nums text-xs">{fmtUsd(r.volumeUsd, 1)}</span>
+              <span className="tabular-nums text-xs text-ink-2">{fmtUsd(r.volumeUsd, 1)}</span>
             </div>
             <div className="text-right tabular-nums text-dim text-xs">{r.transfers.toLocaleString()}</div>
           </div>

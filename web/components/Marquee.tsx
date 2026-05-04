@@ -11,18 +11,18 @@ export function Marquee({ items, blockNumber }: { items: Item[]; blockNumber: nu
   if (filtered.length === 0) return null;
   const sequence = [...filtered, ...filtered];
   return (
-    <div className="border-y border-line bg-panel overflow-hidden">
-      <div className="flex items-center gap-8 whitespace-nowrap py-2.5 marquee-track text-xs">
+    <div className="border-y border-line bg-paper overflow-hidden">
+      <div className="flex items-center gap-7 whitespace-nowrap py-2.5 marquee-track text-[13px]">
         {sequence.map((i, idx) => {
           const tone = (i.change24h ?? 0) >= 0 ? "text-accent" : "text-red";
           return (
-            <span key={`${i.symbol}-${idx}`} className="inline-flex items-center gap-3">
-              <span className="text-dim uppercase tracking-widest text-[10px]">{i.symbol}</span>
-              <span className="font-semibold tabular-nums">
+            <span key={`${i.symbol}-${idx}`} className="inline-flex items-center gap-2.5">
+              <span className="eyebrow text-[10px]">{i.symbol}</span>
+              <span className="font-semibold tabular-nums text-ink">
                 ${(i.priceUsd ?? 0).toLocaleString("en-US", { maximumFractionDigits: i.priceUsd! < 1 ? 4 : 2 })}
               </span>
               {i.change24h !== null ? (
-                <span className={`tabular-nums ${tone}`}>
+                <span className={`tabular-nums text-xs ${tone}`}>
                   {(i.change24h ?? 0) >= 0 ? "+" : ""}
                   {i.change24h?.toFixed(2)}%
                 </span>
@@ -31,8 +31,8 @@ export function Marquee({ items, blockNumber }: { items: Item[]; blockNumber: nu
             </span>
           );
         })}
-        <span className="inline-flex items-center gap-3 text-dim">
-          <span className="uppercase tracking-widest text-[10px]">Block</span>
+        <span className="inline-flex items-center gap-2.5 text-dim">
+          <span className="eyebrow text-[10px]">Block</span>
           <span className="font-semibold tabular-nums text-ink">{blockNumber.toLocaleString()}</span>
           <span className="text-line">·</span>
         </span>
@@ -40,7 +40,7 @@ export function Marquee({ items, blockNumber }: { items: Item[]; blockNumber: nu
       <style>{`
         .marquee-track {
           width: max-content;
-          animation: marquee-slide 60s linear infinite;
+          animation: marquee-slide 80s linear infinite;
         }
         @keyframes marquee-slide {
           from { transform: translateX(0); }

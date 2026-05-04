@@ -5,10 +5,20 @@ import { AlertCard } from "../components/AlertCard";
 import { TokenBoard } from "../components/TokenBoard";
 import { AutoRefresh } from "../components/AutoRefresh";
 import { LiveDot } from "../components/LiveDot";
-import { getLiveSnapshot, isLiveDemoMode, type LiveAlert, type WalletMover, type ParsedTransfer } from "../lib/live-mantle";
+import { TelegramButton } from "../components/TelegramButton";
+import { SectionHeader } from "../components/SectionHeader";
+import { HowItWorks } from "../components/HowItWorks";
+import { BuiltOn } from "../components/BuiltOn";
+import { CTABanner } from "../components/CTABanner";
+import {
+  getLiveSnapshot,
+  type LiveAlert,
+  type WalletMover,
+  type ParsedTransfer,
+} from "../lib/live-mantle";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 30;
 
 function fmtUsd(n: number, prec = 2): string {
   const a = Math.abs(n);
@@ -34,61 +44,78 @@ export default async function HomePage() {
   try {
     snap = await getLiveSnapshot();
   } catch (err) {
-    return (
-      <div className="max-w-page mx-auto px-6 py-16">
-        <h1 className="text-3xl font-semibold mb-3">Mantle RPC unreachable</h1>
-        <p className="text-sm text-dim max-w-prose">
-          The dashboard pulls live transfers + Coingecko prices on render. Either Mantle&apos;s public RPC is rate-limiting you,
-          or your network is blocking it. Set <code className="text-ink">MANTLE_RPC_URL</code> in <code className="text-ink">.env</code>{" "}
-          to a paid Alchemy / QuickNode endpoint and refresh.
-        </p>
-        <pre className="text-xs text-dim mt-4 whitespace-pre-wrap">{String(err)}</pre>
-      </div>
-    );
+    return <ErrorState err={String(err)} />;
   }
 
   const hero = snap.alerts[0];
   const rest = snap.alerts.slice(1, 7);
   const totalVolume = snap.topByToken.reduce((acc, t) => acc + t.volumeUsd, 0);
   const topMover = snap.topByToken[0];
-  const labeledMovers = snap.topMovers.filter((m) => m.label).slice(0, 4);
 
   return (
     <>
-      <AutoRefresh ms={15_000} />
+      <AutoRefresh ms={30_000} />
       <Marquee
-        items={snap.topByToken.map((t) => ({ symbol: t.symbol, priceUsd: t.priceUsd, change24h: t.change24h }))}
+        items={snap.topByToken.map((t) => ({
+          symbol: t.symbol,
+          priceUsd: t.priceUsd,
+          change24h: t.change24h,
+        }))}
         blockNumber={snap.blockNumber}
       />
 
-      <div className="max-w-page mx-auto px-6 pt-10 pb-20">
-        <div className="flex items-end justify-between mb-7 gap-6">
+      {/* HERO */}
+      <section className="border-b border-line">
+        <div className="max-w-page mx-auto px-6 pt-16 md:pt-24 pb-14 md:pb-20 grid lg:grid-cols-[1.5fr_1fr] gap-14 items-end">
           <div>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-dim">Track 2 / AI Alpha & Data</span>
-              <span className="text-line">·</span>
+            <div className="flex items-center gap-3 mb-7">
+              <span className="eyebrow">Track 2 · AI Alpha &amp; Data</span>
+              <span className="text-line">/</span>
               <LiveDot lastTs={snap.blockTs.getTime()} />
             </div>
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tightest leading-[1.05]">
+            <h1 className="text-display-lg font-semibold text-ink">
               Every Mantle move,
               <br />
-              <span className="text-accent">explained in one sentence.</span>
+              <span className="text-accent">in one sentence.</span>
             </h1>
-            <p className="text-sm text-dim mt-4 max-w-xl leading-relaxed">
-              The Read watches Mantle 24/7. It scans the chain for unusual price moves, volume spikes,
-              and whale flows, names the wallets behind them, and pins each alert hash on-chain via an
-              ERC-8004 agent identity NFT.
+            <p className="text-[18px] md:text-[20px] text-ink-2 mt-7 max-w-2xl leading-[1.5]">
+              The Read is an autonomous agent that watches Mantle 24/7. It paraphrases price spikes, volume
+              anomalies, and whale flows in real time, names the wallets behind them, and pins each alert hash
+              on-chain via an ERC-8004 agent identity NFT.
             </p>
+            <div className="flex flex-wrap items-center gap-4 mt-9">
+              <TelegramButton size="lg" />
+              <a href="#feed" className="btn-ghost text-sm">
+                See live feed ↓
+              </a>
+            </div>
           </div>
-          <div className="hidden md:flex flex-col items-end gap-1 text-xs text-dim">
-            <span className="font-mono text-ink tabular-nums">block {snap.blockNumber.toLocaleString()}</span>
-            <span>last {snap.windowSec}s</span>
-            <span>{snap.transfers.length.toLocaleString()} transfers · {snap.walletCount.toLocaleString()} wallets</span>
-          </div>
+          <aside className="border-l-0 lg:border-l border-line lg:pl-10">
+            <div className="grid grid-cols-2 gap-y-5 text-sm">
+              <Lookup k="Block" v={snap.blockNumber.toLocaleString()} />
+              <Lookup k="Transfers · last 8m" v={snap.transfers.length.toLocaleString()} />
+              <Lookup k="Active wallets" v={snap.walletCount.toLocaleString()} />
+              <Lookup k="USD flow · 8m" v={fmtUsd(totalVolume, 1)} tone="up" />
+              <Lookup k="Live alerts" v={snap.alerts.length.toString()} tone="up" />
+              <Lookup k="Agent" v="ERC-8004 #1" />
+            </div>
+            <div className="mt-7 pt-5 border-t border-line text-[12px] text-dim leading-relaxed">
+              Decoded straight from Mantle&apos;s public RPC. Snapshot cached 60s, page revalidates every 30s.
+            </div>
+          </aside>
         </div>
+      </section>
 
+      <div id="feed" className="max-w-page mx-auto px-6 pt-14 md:pt-20 pb-24 flex flex-col gap-16">
+        {/* SPOTLIGHT */}
         {hero ? (
-          <div className="mb-6">
+          <section>
+            <SectionHeader
+              eyebrow="Spotlight"
+              title="The latest read"
+              description="Highest-severity alert in the live window. Same payload that ships to Telegram."
+              meta={`block ${snap.blockNumber.toLocaleString()}`}
+            />
             <HeroAlert
               kind={hero.kind}
               token={hero.token}
@@ -102,55 +129,54 @@ export default async function HomePage() {
               }
               pct={hero.pct}
             />
-          </div>
+          </section>
         ) : null}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-line mb-12">
+        {/* STATS BENTO */}
+        <section className="grid grid-cols-2 md:grid-cols-4 border-l border-t border-line bg-paper">
           <StatBlock
             label="Window flow"
             value={fmtUsd(totalVolume, 1)}
-            sub={`${snap.transfers.length} transfers · last ${Math.round(snap.windowSec / 60)}m`}
+            sub={`${snap.transfers.length} transfers in 8 minutes`}
             spark={topMover?.spark}
             tone="up"
           />
           <StatBlock
             label="Active wallets"
             value={snap.walletCount.toLocaleString()}
-            sub={`${labeledMovers.length} labeled entities active`}
+            sub="distinct addresses · this window"
           />
           <StatBlock
             label="Live alerts"
             value={snap.alerts.length.toString()}
-            sub={`${snap.alerts.filter((a) => a.kind === "whale_move").length} whale · ${snap.alerts.filter((a) => a.kind === "price_spike").length} price · ${snap.alerts.filter((a) => a.kind === "volume_spike").length} flow`}
+            sub={`${snap.alerts.filter((a) => a.kind === "whale_move").length} whale · ${
+              snap.alerts.filter((a) => a.kind === "price_spike").length
+            } price · ${snap.alerts.filter((a) => a.kind === "volume_spike").length} flow`}
             tone="warn"
           />
-          <StatBlock
-            label="Agent identity"
-            value="ERC-8004"
-            sub="The Read · attestations on Mantle"
-          />
-        </div>
+          <StatBlock label="Agent identity" value="ERC-8004" sub="The Read · #1" />
+        </section>
 
-        {/* ALERTS — full width, 3-up grid */}
-        <section className="mb-12">
-          <div className="flex items-end justify-between mb-4 border-b border-line pb-3">
-            <div>
-              <h2 className="text-xs uppercase tracking-[0.2em] text-dim">Recent alerts</h2>
-              <p className="text-[11px] text-dim mt-1">Narrated by Claude · attested via ERC-8004</p>
-            </div>
-            <span className="text-xs text-dim tabular-nums">{rest.length + (hero ? 1 : 0)} active</span>
-          </div>
+        {/* RECENT ALERTS */}
+        <section>
+          <SectionHeader
+            eyebrow="Recent alerts"
+            title="What the agent is saying right now"
+            description="Each card is a one-sentence read paraphrased by Claude from structured detector output. Never a wallet address — only labels."
+            meta={`${rest.length + (hero ? 1 : 0)} active`}
+          />
           {rest.length === 0 && !hero ? (
-            <EmptyAlerts />
+            <div className="border border-line bg-paper p-10 text-sm text-dim text-center">
+              No anomalies in the current window. The detector is patient — most blocks pass without comment.
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-line">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-l border-t border-line bg-paper">
               {rest.map((a: LiveAlert) => (
                 <AlertCard
                   key={a.id}
                   a={{
                     ...a,
-                    spark:
-                      snap.topByToken.find((t) => t.symbol === a.token)?.spark ?? [],
+                    spark: snap.topByToken.find((t) => t.symbol === a.token)?.spark ?? [],
                   }}
                 />
               ))}
@@ -158,49 +184,47 @@ export default async function HomePage() {
           )}
         </section>
 
-        {/* TOKENS + MOVERS — side by side, full width */}
-        <section className="mb-12 grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-px bg-line">
-          <div className="bg-bg p-0">
-            <div className="flex items-end justify-between mb-3 px-1 pb-3 border-b border-line">
-              <div>
-                <h2 className="text-xs uppercase tracking-[0.2em] text-dim">Tokens · last {Math.round(snap.windowSec / 60)}m</h2>
-                <p className="text-[11px] text-dim mt-1">Sparklines = volume per ~30s bucket within the window</p>
-              </div>
-              <span className="text-xs text-dim">{snap.topByToken.length} watched</span>
-            </div>
+        {/* TOKENS + MOVERS */}
+        <section className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-10">
+          <div>
+            <SectionHeader
+              eyebrow={`Tokens · last ${Math.round(snap.windowSec / 60)}m`}
+              title="Where flow is happening on Mantle"
+              description="Sparklines = USD volume per ~30s bucket. Prices and 24h via Coingecko."
+              meta={`${snap.topByToken.length} watched`}
+            />
             <TokenBoard rows={snap.topByToken} />
           </div>
-          <div className="bg-bg p-0">
-            <div className="flex items-end justify-between mb-3 px-1 pb-3 border-b border-line">
-              <div>
-                <h2 className="text-xs uppercase tracking-[0.2em] text-dim">Top wallet movers</h2>
-                <p className="text-[11px] text-dim mt-1">Ranked by total flow · click to view on Mantlescan</p>
-              </div>
-              <span className="text-xs text-dim">{snap.topMovers.length} ranked</span>
-            </div>
-            <div className="border border-line">
-              {snap.topMovers.slice(0, 9).map((m: WalletMover, i) => (
+          <div>
+            <SectionHeader
+              eyebrow="Top wallet movers"
+              title="Live window leaderboard"
+              description="Click an address to inspect on Mantlescan. Labels feed every alert narrative."
+              meta={`${snap.topMovers.length} ranked`}
+            />
+            <div className="border border-line bg-paper">
+              {snap.topMovers.slice(0, 10).map((m: WalletMover, i) => (
                 <a
                   key={m.address}
                   href={`https://mantlescan.xyz/address/${m.address}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="grid grid-cols-[28px_1fr_84px] gap-3 px-4 py-2.5 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[28px_1fr_92px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
                   <span className="text-dim text-xs tabular-nums">{(i + 1).toString().padStart(2, "0")}</span>
                   <span className="flex flex-col gap-0.5 min-w-0">
-                    <span className="font-mono text-xs truncate">{shortAddr(m.address)}</span>
+                    <span className="font-mono text-xs text-ink">{shortAddr(m.address)}</span>
                     {m.label ? (
-                      <span className="text-[10px] uppercase tracking-widest text-accent">{m.label}</span>
+                      <span className="eyebrow text-accent">{m.label}</span>
                     ) : (
-                      <span className="text-[10px] uppercase tracking-widest text-dim">unlabeled · {m.topToken}</span>
+                      <span className="eyebrow text-dim">unlabeled · {m.topToken}</span>
                     )}
                   </span>
-                  <span className="text-right tabular-nums">{fmtUsd(m.inflowUsd + m.outflowUsd, 1)}</span>
+                  <span className="text-right tabular-nums text-ink">{fmtUsd(m.inflowUsd + m.outflowUsd, 1)}</span>
                 </a>
               ))}
               {snap.topMovers.length === 0 ? (
-                <div className="px-4 py-8 text-sm text-dim text-center">
+                <div className="px-5 py-10 text-sm text-dim text-center">
                   No wallet activity in this window.
                 </div>
               ) : null}
@@ -208,36 +232,37 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* RECENT TRANSFERS — proof of real chain data */}
+        {/* RAW TRANSFERS */}
         {snap.transfers.length > 0 ? (
-          <section className="mb-12">
-            <div className="flex items-end justify-between mb-3 border-b border-line pb-3">
-              <div>
-                <h2 className="text-xs uppercase tracking-[0.2em] text-dim">Largest transfers · raw chain</h2>
-                <p className="text-[11px] text-dim mt-1">Decoded ERC-20 Transfer logs from the most recent {Math.round(snap.windowSec / 60)} minutes on Mantle</p>
-              </div>
-              <span className="text-xs text-dim">{snap.transfers.length} parsed</span>
-            </div>
-            <div className="border border-line">
-              <div className="grid grid-cols-[80px_1fr_1fr_120px_120px] gap-3 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] text-dim border-b border-line bg-panel/60">
+          <section>
+            <SectionHeader
+              eyebrow="Largest transfers · raw chain"
+              title="Decoded ERC-20 logs"
+              description={`Pulled directly off Mantle's public RPC across the most recent ${Math.round(snap.windowSec / 60)} minutes. No database in the loop.`}
+              meta={`${snap.transfers.length} parsed`}
+            />
+            <div className="border border-line bg-paper">
+              <div className="grid grid-cols-[80px_1fr_1fr_120px_140px] gap-3 px-5 py-2.5 eyebrow border-b border-line">
                 <div>Token</div>
                 <div>From</div>
                 <div>To</div>
                 <div className="text-right">USD</div>
                 <div className="text-right">Block · Age</div>
               </div>
-              {snap.transfers.slice(0, 10).map((t: ParsedTransfer) => (
+              {snap.transfers.slice(0, 12).map((t: ParsedTransfer) => (
                 <a
-                  key={t.txHash}
+                  key={`${t.txHash}-${t.logIndex}`}
                   href={`https://mantlescan.xyz/tx/${t.txHash}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="grid grid-cols-[80px_1fr_1fr_120px_120px] gap-3 px-4 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[80px_1fr_1fr_120px_140px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
-                  <span className="text-[11px] uppercase tracking-widest">{t.symbol}</span>
-                  <span className="font-mono text-xs truncate">{shortAddr(t.fromAddr)}</span>
-                  <span className="font-mono text-xs truncate">{shortAddr(t.toAddr)}</span>
-                  <span className="text-right tabular-nums">{fmtUsd(t.usdValue, t.usdValue >= 1000 ? 1 : 0)}</span>
+                  <span className="font-medium tracking-tighter">{t.symbol}</span>
+                  <span className="font-mono text-xs truncate text-ink-2">{shortAddr(t.fromAddr)}</span>
+                  <span className="font-mono text-xs truncate text-ink-2">{shortAddr(t.toAddr)}</span>
+                  <span className="text-right tabular-nums">
+                    {fmtUsd(t.usdValue, t.usdValue >= 1000 ? 1 : 0)}
+                  </span>
                   <span className="text-right tabular-nums text-dim text-xs">
                     {t.blockNumber.toLocaleString()} · {relTime(t.ts)}
                   </span>
@@ -247,25 +272,35 @@ export default async function HomePage() {
           </section>
         ) : null}
 
-        {isLiveDemoMode() ? (
-          <div className="border border-accent/30 bg-accent/[0.04] p-5 text-xs text-dim leading-relaxed flex items-start gap-4">
-            <span className="text-accent uppercase tracking-[0.2em] text-[10px] font-semibold pt-0.5">live demo</span>
-            <p className="flex-1">
-              Every number on this page comes from Mantle&apos;s public RPC + Coingecko on each refresh — no database, no precomputed
-              data. Connect <code className="text-ink">DATABASE_URL</code> to switch to the indexed warehouse view (24h windows,
-              long-tail wallet labels, ERC-8004 attestations posted on every alert).
-            </p>
-          </div>
-        ) : null}
+        <HowItWorks />
+        <BuiltOn />
+        <CTABanner />
       </div>
     </>
   );
 }
 
-function EmptyAlerts() {
+function Lookup({ k, v, tone }: { k: string; v: string; tone?: "up" | "down" }) {
+  const c = tone === "up" ? "text-accent" : tone === "down" ? "text-red" : "text-ink";
   return (
-    <div className="border border-line p-8 text-sm text-dim text-center">
-      No anomalies in the current window. The detector is patient — most blocks pass without comment.
+    <div>
+      <div className="eyebrow text-[10px] mb-1">{k}</div>
+      <div className={`tabular-nums text-[19px] tracking-tighter font-semibold ${c}`}>{v}</div>
+    </div>
+  );
+}
+
+function ErrorState({ err }: { err: string }) {
+  return (
+    <div className="max-w-page mx-auto px-6 py-20">
+      <div className="eyebrow mb-3">Boot error</div>
+      <h1 className="text-display-md font-semibold text-ink">Mantle RPC unreachable</h1>
+      <p className="text-[16px] text-ink-2 mt-4 max-w-prose leading-relaxed">
+        The dashboard pulls live transfers + Coingecko prices on render. Either Mantle&apos;s public RPC is
+        rate-limiting you, or your network is blocking it. Set <code>MANTLE_RPC_URL</code> in <code>.env</code>{" "}
+        to a paid Alchemy / QuickNode endpoint and refresh.
+      </p>
+      <pre className="text-xs text-dim mt-6 whitespace-pre-wrap">{err}</pre>
     </div>
   );
 }

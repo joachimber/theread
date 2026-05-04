@@ -5,7 +5,6 @@ interface SparklineProps {
   stroke?: string;
   fill?: string;
   strokeWidth?: number;
-  /** if true, draw a baseline at zero */
   baseline?: boolean;
 }
 
@@ -21,7 +20,7 @@ export function Sparkline({
   if (!values.length) {
     return (
       <svg width={width} height={height} aria-hidden="true">
-        <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="#1a1a1a" strokeWidth={1} />
+        <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="rgba(0,0,0,0.12)" strokeWidth={1} />
       </svg>
     );
   }
@@ -42,9 +41,9 @@ export function Sparkline({
   return (
     <svg width={width} height={height} aria-hidden="true" className="block">
       {baseline ? (
-        <line x1="0" y1={height - 1} x2={width} y2={height - 1} stroke="#1a1a1a" strokeWidth={1} />
+        <line x1="0" y1={height - 1} x2={width} y2={height - 1} stroke="rgba(0,0,0,0.08)" strokeWidth={1} />
       ) : null}
-      {fill !== "none" ? <path d={area} fill={fill} opacity={0.18} /> : null}
+      {fill !== "none" ? <path d={area} fill={fill} opacity={0.16} /> : null}
       <path d={path} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin="miter" strokeLinecap="butt" />
     </svg>
   );

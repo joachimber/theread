@@ -67,7 +67,10 @@ async function fetchPrices(): Promise<void> {
     ",",
   )}&vs_currencies=usd&include_24hr_change=true`;
   try {
-    const res = await fetch(url, { headers: { accept: "application/json" }, next: { revalidate: 60 } });
+    const res = await fetch(url, {
+      headers: { accept: "application/json" },
+      next: { revalidate: 120, tags: ["coingecko"] },
+    });
     if (!res.ok) return;
     const body = (await res.json()) as Record<
       string,
@@ -110,6 +113,7 @@ interface LiveSnapshot {
 
 export interface ParsedTransfer {
   blockNumber: number;
+  logIndex: number;
   txHash: string;
   token: string;
   symbol: string;
@@ -155,16 +159,25 @@ export interface LiveAlert {
 }
 
 let snapshotCache: LiveSnapshot | null = null;
-const SNAPSHOT_TTL_MS = 30_000;
+let inflight: Promise<LiveSnapshot> | null = null;
+const SNAPSHOT_TTL_MS = 60_000;
 
+/**
+ * Verified Mantle-side labels only. The OP-Stack standard predeploys are
+ * deterministic and safe to claim. Everything else (CEX hot wallets, DEX
+ * routers, treasury) ships unlabeled until we wire up the real label
+ * pipeline (Etherscan tags + behavioral clustering) in the indexer.
+ *
+ * Better an honest "unlabeled · USDe" than a confident wrong claim.
+ */
 const KNOWN_LABELS: Record<string, string> = {
-  "0xf89d7b9c864f589bbf53a82105107622b35eaa40": "Bybit Hot Wallet",
-  "0xeaee7ee68874218c3558b40063c42b82d3e7232a": "Merchant Moe Router",
-  "0x319b69888b0d11cec22caa5034e25fffbdc88421": "Agni V3 Router",
-  "0x9b36f165bab9ebe611d491180418d8de4b8f3a1f": "FusionX V3 Router",
-  "0x95fc37a27a2f68e3a647cdc081f0a89bb47c3012": "Mantle Native Bridge",
-  "0xa9b72ccc9968afec98a96239b5aa48d828e8d827": "Mantle Treasury",
-  "0xf9027c9f53ac0f00385d7cb3d9f02ab2bbd31cc7": "mETH Staking",
+  // OP-Stack predeploys (deterministic across all OP-Stack chains incl. Mantle)
+  "0x4200000000000000000000000000000000000007": "L2 Cross-Domain Messenger",
+  "0x4200000000000000000000000000000000000010": "L2 Standard Bridge",
+  "0x4200000000000000000000000000000000000011": "L2 Sequencer Fee Vault",
+  "0x4200000000000000000000000000000000000016": "L2 To L1 Message Passer",
+  "0x000000000000000000000000000000000000dead": "Burn",
+  "0x0000000000000000000000000000000000000000": "Zero (mint/burn)",
 };
 
 function fmtPct(n: number): string {
@@ -195,7 +208,19 @@ export async function getLiveSnapshot(force = false): Promise<LiveSnapshot> {
   if (!force && snapshotCache && Date.now() - snapshotCache.ts < SNAPSHOT_TTL_MS) {
     return snapshotCache;
   }
+  // Single-flight: while one request is computing, all callers await it.
+  if (inflight) return inflight;
+  inflight = (async () => {
+    try {
+      return await computeSnapshot();
+    } finally {
+      inflight = null;
+    }
+  })();
+  return inflight;
+}
 
+async function computeSnapshot(): Promise<LiveSnapshot> {
   await fetchPrices();
   const head = await client.getBlockNumber();
   const fromBlock = head - BigInt(BLOCKS_TO_SCAN);
@@ -241,6 +266,7 @@ export async function getLiveSnapshot(force = false): Promise<LiveSnapshot> {
       const ts = blockMap.get(Number(lg.blockNumber)) ?? headTs;
       transfers.push({
         blockNumber: Number(lg.blockNumber),
+        logIndex: lg.logIndex ?? 0,
         txHash: lg.transactionHash!,
         token: lg.address.toLowerCase(),
         symbol: tok.symbol,
@@ -378,7 +404,7 @@ export async function getLiveSnapshot(force = false): Promise<LiveSnapshot> {
     }
 
     alerts.push({
-      id: `whale-${t.txHash}`,
+      id: `whale-${t.txHash}-${t.logIndex}`,
       kind: "whale_move",
       severity: Math.min(5, Math.max(1, Math.round(Math.log10(t.usdValue) - 3))) as 1 | 2 | 3 | 4 | 5,
       token: t.symbol,

@@ -10,7 +10,7 @@ export function LiveDot({ lastTs }: { lastTs: string | number | null }) {
   }, []);
   if (!lastTs) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs text-dim">
+      <span className="inline-flex items-center gap-1.5 eyebrow">
         <span className="w-1.5 h-1.5 bg-dim inline-block" /> idle
       </span>
     );
@@ -19,12 +19,10 @@ export function LiveDot({ lastTs }: { lastTs: string | number | null }) {
   const ageSec = Math.max(0, (now - ts) / 1000);
   const isLive = ageSec < 90;
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs">
-      <span
-        className={`w-1.5 h-1.5 inline-block ${isLive ? "bg-accent animate-pulse" : "bg-warn"}`}
-      />
+    <span className="inline-flex items-center gap-1.5 eyebrow">
+      <span className={`w-1.5 h-1.5 inline-block ${isLive ? "bg-accent animate-pulse" : "bg-warn"}`} />
       <span className={isLive ? "text-accent" : "text-warn"}>
-        {isLive ? "live" : `${Math.round(ageSec)}s lag`}
+        {isLive ? "Live" : `${Math.round(ageSec)}s lag`}
       </span>
     </span>
   );

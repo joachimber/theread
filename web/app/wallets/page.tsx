@@ -1,8 +1,10 @@
 import { AutoRefresh } from "../../components/AutoRefresh";
+import { SectionHeader } from "../../components/SectionHeader";
+import { TelegramButton } from "../../components/TelegramButton";
 import { getLiveSnapshot } from "../../lib/live-mantle";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 30;
 
 function fmtUsd(n: number, prec = 2): string {
   const a = Math.abs(n);
@@ -22,9 +24,9 @@ export default async function WalletsPage() {
     snap = await getLiveSnapshot();
   } catch (err) {
     return (
-      <div className="max-w-page mx-auto px-6 py-16">
-        <h1 className="text-3xl font-semibold mb-3">Mantle RPC unreachable</h1>
-        <p className="text-sm text-dim">{String(err)}</p>
+      <div className="max-w-page mx-auto px-6 py-20">
+        <h1 className="text-display-md font-semibold text-ink">Mantle RPC unreachable</h1>
+        <p className="text-sm text-dim mt-4 max-w-prose">{String(err)}</p>
       </div>
     );
   }
@@ -36,28 +38,40 @@ export default async function WalletsPage() {
 
   return (
     <>
-      <AutoRefresh ms={20_000} />
-      <div className="max-w-page mx-auto px-6 pt-10 pb-20">
-        <div className="flex items-end justify-between mb-7 gap-6">
+      <AutoRefresh ms={30_000} />
+      <section className="border-b border-line">
+        <div className="max-w-page mx-auto px-6 pt-12 md:pt-16 pb-10 grid lg:grid-cols-[1.5fr_1fr] gap-10 items-end">
           <div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-dim">Live · last {Math.round(snap.windowSec / 60)}m</span>
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tightest leading-[1.05] mt-2">
-              Top movers on <span className="text-accent">Mantle</span>
+            <div className="eyebrow mb-3">Live · last {Math.round(snap.windowSec / 60)}m on Mantle</div>
+            <h1 className="text-display-md font-semibold text-ink">
+              The wallets actually <span className="text-accent">moving Mantle</span>.
             </h1>
-            <p className="text-sm text-dim mt-3 max-w-xl">
-              Wallets ranked by total flow in the live window. Labels feed every alert narrative;
-              extending the seed list is the highest-ROI thing for narrative quality.
+            <p className="text-[16px] text-ink-2 mt-5 max-w-2xl leading-[1.55]">
+              Ranked by total flow this window. Labels feed every alert narrative — extending the seed list is
+              the highest-ROI thing for narrative quality. Click any address to open it on Mantlescan.
             </p>
+            <div className="mt-6">
+              <TelegramButton size="md" label="Track in Telegram" />
+            </div>
           </div>
-          <div className="hidden md:flex flex-col items-end gap-1 text-xs text-dim">
-            <span>{wallets.length} wallets · {labeledCount} labeled</span>
-            <span className="font-mono text-ink tabular-nums">flow {fmtUsd(totalFlow, 1)}</span>
-            <span>block {snap.blockNumber.toLocaleString()}</span>
-          </div>
+          <aside className="border-l-0 lg:border-l border-line lg:pl-10 grid grid-cols-2 gap-y-5 text-sm">
+            <Stat k="Wallets" v={wallets.length.toString()} />
+            <Stat k="Labeled" v={labeledCount.toString()} tone={labeledCount === 0 ? "warn" : "up"} />
+            <Stat k="Total flow" v={fmtUsd(totalFlow, 1)} tone="up" />
+            <Stat k="Block" v={snap.blockNumber.toLocaleString()} />
+          </aside>
         </div>
+      </section>
 
-        <div className="border border-line">
-          <div className="grid grid-cols-[40px_1.5fr_1fr_120px_120px_120px_180px] gap-3 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] text-dim border-b border-line bg-panel/60">
+      <div className="max-w-page mx-auto px-6 py-12">
+        <SectionHeader
+          eyebrow="Leaderboard"
+          title={`Top movers · last ${Math.round(snap.windowSec / 60)} minutes`}
+          description="Bars compare each wallet to the top mover. Inflow and outflow split shows direction at a glance."
+          meta={`${wallets.length} wallets`}
+        />
+        <div className="border border-line bg-paper">
+          <div className="grid grid-cols-[44px_2fr_1.2fr_120px_120px_120px_180px] gap-3 px-5 py-3 eyebrow border-b border-line">
             <div>#</div>
             <div>Address</div>
             <div>Label</div>
@@ -70,37 +84,37 @@ export default async function WalletsPage() {
             const total = w.inflowUsd + w.outflowUsd;
             const pct = (total / maxFlow) * 100;
             const netTone = w.netUsd > 0 ? "text-accent" : w.netUsd < 0 ? "text-red" : "text-ink";
-            const inflowPct = total > 0 ? (w.inflowUsd / total) * 100 : 0;
+            const inflowPct = total > 0 ? (w.inflowUsd / total) * 100 : 50;
             return (
               <a
                 key={w.address}
                 href={`https://mantlescan.xyz/address/${w.address}`}
                 target="_blank"
                 rel="noreferrer"
-                className="grid grid-cols-[40px_1.5fr_1fr_120px_120px_120px_180px] gap-3 px-4 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                className="grid grid-cols-[44px_2fr_1.2fr_120px_120px_120px_180px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
               >
                 <span className="text-dim text-xs tabular-nums">{(i + 1).toString().padStart(2, "0")}</span>
-                <span className="font-mono text-xs">{shortAddr(w.address)}</span>
+                <span className="font-mono text-xs text-ink">{shortAddr(w.address)}</span>
                 <span>
                   {w.label ? (
-                    <span className="inline-block border border-accent/40 text-accent px-2 py-0.5 text-[10px] uppercase tracking-widest">
+                    <span className="inline-block bg-accent-soft text-accent px-2 py-0.5 text-[10px] uppercase tracking-widest font-semibold">
                       {w.label}
                     </span>
                   ) : (
                     <span className="text-dim text-xs">unlabeled · {w.topToken}</span>
                   )}
                 </span>
-                <span className="text-right tabular-nums text-accent/90">{fmtUsd(w.inflowUsd, 1)}</span>
-                <span className="text-right tabular-nums text-red/90">{fmtUsd(w.outflowUsd, 1)}</span>
+                <span className="text-right tabular-nums text-accent">{fmtUsd(w.inflowUsd, 1)}</span>
+                <span className="text-right tabular-nums text-red">{fmtUsd(w.outflowUsd, 1)}</span>
                 <span className={`text-right tabular-nums ${netTone}`}>{fmtUsd(w.netUsd, 1)}</span>
                 <span className="flex items-center gap-2">
-                  <span className="flex-1 h-2 bg-line relative">
+                  <span className="flex-1 h-2 bg-line-2 relative">
                     <span
-                      className="absolute inset-y-0 left-0 bg-accent/70"
+                      className="absolute inset-y-0 left-0 bg-accent"
                       style={{ width: `${Math.max(2, (inflowPct / 100) * pct)}%` }}
                     />
                     <span
-                      className="absolute inset-y-0 bg-red/70"
+                      className="absolute inset-y-0 bg-red"
                       style={{
                         left: `${Math.max(2, (inflowPct / 100) * pct)}%`,
                         width: `${Math.max(2, ((100 - inflowPct) / 100) * pct)}%`,
@@ -113,23 +127,33 @@ export default async function WalletsPage() {
             );
           })}
           {wallets.length === 0 ? (
-            <div className="px-4 py-12 text-sm text-dim text-center">
+            <div className="px-5 py-12 text-sm text-dim text-center">
               No wallet activity in the live window. The chain is quiet right now — try refreshing in 30s.
             </div>
           ) : null}
         </div>
 
-        <div className="mt-6 text-xs text-dim flex gap-6 flex-wrap">
+        <div className="mt-5 text-xs text-dim flex flex-wrap gap-x-6 gap-y-2">
           <span className="inline-flex items-center gap-2">
             <span className="w-2 h-2 bg-accent inline-block" /> inflow
           </span>
           <span className="inline-flex items-center gap-2">
             <span className="w-2 h-2 bg-red inline-block" /> outflow
           </span>
-          <span>· bar width = relative to top mover this window</span>
-          <span>· labels seeded from <code className="text-ink">src/indexer/labels.ts</code></span>
+          <span>· bar width = relative to top mover</span>
+          <span>· labels seed: <code>src/indexer/labels.ts</code></span>
         </div>
       </div>
     </>
+  );
+}
+
+function Stat({ k, v, tone }: { k: string; v: string; tone?: "up" | "warn" | "down" }) {
+  const c = tone === "up" ? "text-accent" : tone === "warn" ? "text-warn" : tone === "down" ? "text-red" : "text-ink";
+  return (
+    <div>
+      <div className="eyebrow text-[10px] mb-1">{k}</div>
+      <div className={`tabular-nums text-[18px] tracking-tighter font-semibold ${c}`}>{v}</div>
+    </div>
   );
 }

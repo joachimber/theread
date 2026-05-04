@@ -1,34 +1,34 @@
 import Link from "next/link";
+import { TelegramButton } from "./TelegramButton";
+import { Logo } from "./Logo";
 
 export function Header() {
   return (
-    <header className="border-b border-line backdrop-blur-sm sticky top-0 z-20 bg-bg/80 relative">
-      <div className="max-w-page mx-auto px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-7">
-          <Link href="/" className="flex items-center gap-2.5 text-sm font-semibold tracking-tightest">
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-              <rect x="0" y="0" width="14" height="14" fill="#5cf2a4" />
-              <rect x="2" y="2" width="10" height="10" fill="#060606" />
-              <rect x="4" y="4" width="6" height="6" fill="#5cf2a4" />
-            </svg>
-            <span>THE&nbsp;READ</span>
+    <header className="border-b border-line bg-bg/85 backdrop-blur-md sticky top-0 z-30">
+      <div className="max-w-page mx-auto px-6 h-16 flex items-center justify-between gap-6">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tighter text-[15px]">
+            <Logo size={20} />
+            <span>The Read</span>
           </Link>
-          <span className="hidden md:inline text-[10px] text-dim uppercase tracking-[0.22em]">
+          <span className="hidden lg:flex items-center gap-2 text-[11px] eyebrow">
+            <span className="w-1.5 h-1.5 bg-accent inline-block animate-pulse" />
             Mantle anomaly narrator
           </span>
         </div>
-        <nav className="flex items-center gap-1 text-xs uppercase tracking-[0.2em]">
-          <Link href="/" className="px-2.5 py-1 text-dim hover:text-ink hover:bg-panel transition-colors">Feed</Link>
-          <Link href="/wallets" className="px-2.5 py-1 text-dim hover:text-ink hover:bg-panel transition-colors">Wallets</Link>
-          <Link href="/agent" className="px-2.5 py-1 text-dim hover:text-ink hover:bg-panel transition-colors">Agent</Link>
+        <nav className="flex items-center gap-1 text-sm">
+          <Link href="/" className="px-3 py-1.5 text-ink-2 hover:text-ink hover:bg-line-2 transition-colors">Feed</Link>
+          <Link href="/wallets" className="px-3 py-1.5 text-ink-2 hover:text-ink hover:bg-line-2 transition-colors">Wallets</Link>
+          <Link href="/agent" className="px-3 py-1.5 text-ink-2 hover:text-ink hover:bg-line-2 transition-colors">Agent</Link>
           <a
-            href="https://mantlescan.xyz"
+            href="https://github.com/anthropics"
             target="_blank"
             rel="noreferrer"
-            className="px-2.5 py-1 text-dim hover:text-ink hover:bg-panel transition-colors"
+            className="hidden md:inline-flex px-3 py-1.5 text-ink-2 hover:text-ink hover:bg-line-2 transition-colors"
           >
-            Mantle ↗
+            Docs
           </a>
+          <TelegramButton size="sm" className="ml-3" />
         </nav>
       </div>
     </header>
