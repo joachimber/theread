@@ -15,8 +15,8 @@ import {
   WATCHED_ADDRESSES,
   COINGECKO_IDS,
   COINGECKO_TO_SYMBOL,
-} from "../../src/lib/tokens";
-import { erc20Abi } from "../../src/lib/abi";
+} from "./tokens";
+import { erc20Abi } from "./abi";
 
 const mantle = defineChain({
   id: 5000,

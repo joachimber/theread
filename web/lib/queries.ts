@@ -148,7 +148,7 @@ export async function getTopWallets(limit = 50) {
 export async function getAgentSnapshot() {
   return withDemoFallback(
     async () => {
-      const { agentRegistry } = await import("../../src/db/schema");
+      const { agentRegistry } = await import("./schema");
       const [identity] = await db.select().from(agentRegistry).limit(1);
       const recent = await db
         .select({

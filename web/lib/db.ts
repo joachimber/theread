@@ -1,6 +1,6 @@
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import * as schema from "../../src/db/schema";
+import * as schema from "./schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -26,4 +26,4 @@ export const db = new Proxy({} as ReturnType<typeof drizzle>, {
 });
 
 export { schema };
-export * from "../../src/db/schema";
+export * from "./schema";
