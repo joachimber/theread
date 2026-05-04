@@ -68,32 +68,32 @@ export default async function HomePage() {
 
       {/* HERO */}
       <section className="border-b border-line">
-        <div className="max-w-page mx-auto px-6 pt-16 md:pt-24 pb-14 md:pb-20 grid lg:grid-cols-[1.5fr_1fr] gap-14 items-end">
+        <div className="max-w-page mx-auto px-4 md:px-6 pt-10 md:pt-20 pb-10 md:pb-20 grid lg:grid-cols-[1.5fr_1fr] gap-10 lg:gap-14 items-end">
           <div>
-            <div className="flex items-center gap-3 mb-7">
+            <div className="flex items-center gap-3 mb-5 md:mb-7 flex-wrap">
               <span className="eyebrow">Track 2 · AI Alpha &amp; Data</span>
               <span className="text-line">/</span>
               <LiveDot lastTs={snap.blockTs.getTime()} />
             </div>
-            <h1 className="text-display-lg font-semibold text-ink">
+            <h1 className="text-[clamp(36px,7vw,96px)] leading-[0.98] tracking-tightest font-semibold text-ink">
               Every Mantle move,
               <br />
               <span className="text-accent">in one sentence.</span>
             </h1>
-            <p className="text-[18px] md:text-[20px] text-ink-2 mt-7 max-w-2xl leading-[1.5]">
+            <p className="text-[15px] md:text-[20px] text-ink-2 mt-5 md:mt-7 max-w-2xl leading-[1.55]">
               The Read is an autonomous agent that watches Mantle 24/7. It calls out price spikes, volume
               anomalies, and whale flows the moment they happen, names the wallets behind them, and pins each
               alert hash on-chain via an ERC-8004 agent identity NFT.
             </p>
-            <div className="flex flex-wrap items-center gap-4 mt-9">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-6 md:mt-9">
               <TelegramButton size="lg" />
               <a href="#feed" className="btn-ghost text-sm">
                 See live feed ↓
               </a>
             </div>
           </div>
-          <aside className="border-l-0 lg:border-l border-line lg:pl-10">
-            <div className="grid grid-cols-2 gap-y-5 text-sm">
+          <aside className="border-t lg:border-t-0 lg:border-l border-line pt-7 lg:pt-0 lg:pl-10">
+            <div className="grid grid-cols-2 gap-y-4 md:gap-y-5 text-sm">
               <Lookup k="Block" v={snap.blockNumber.toLocaleString()} />
               <Lookup k="Transfers · past 8 min" v={snap.transfers.length.toLocaleString()} />
               <Lookup k="Active wallets" v={snap.walletCount.toLocaleString()} />
@@ -101,15 +101,15 @@ export default async function HomePage() {
               <Lookup k="Live alerts" v={snap.alerts.length.toString()} tone="up" />
               <Lookup k="Agent" v="ERC-8004 #1" />
             </div>
-            <div className="mt-7 pt-5 border-t border-line text-[12px] text-dim leading-relaxed">
+            <div className="mt-6 md:mt-7 pt-4 md:pt-5 border-t border-line text-[12px] text-dim leading-relaxed">
               Each render pulls the last 250 Mantle blocks (~8 minutes at 2s/block) directly from the public RPC.
-              Snapshot is cached 60s; the page re-fetches every 30s.
+              Snapshot cached 60s; page re-fetches every 30s.
             </div>
           </aside>
         </div>
       </section>
 
-      <div id="feed" className="max-w-page mx-auto px-6 pt-14 md:pt-20 pb-24 flex flex-col gap-16">
+      <div id="feed" className="max-w-page mx-auto px-4 md:px-6 pt-10 md:pt-20 pb-16 md:pb-24 flex flex-col gap-12 md:gap-16">
         {/* SPOTLIGHT */}
         {hero ? (
           <section>
@@ -266,8 +266,9 @@ export default async function HomePage() {
               description={`Pulled directly off Mantle's public RPC across the past ${Math.round(snap.windowSec / 60)} minutes (~${250} blocks). No database in the loop — every number on this row is decoded on render.`}
               meta={`${snap.transfers.length} parsed`}
             />
-            <div className="border border-line bg-paper">
-              <div className="grid grid-cols-[60px_1fr_1fr_110px_120px_160px] gap-3 px-5 py-2.5 eyebrow border-b border-line">
+            <div className="border border-line bg-paper table-scroll">
+              <div className="min-w-[820px]">
+              <div className="grid grid-cols-[60px_1fr_1fr_110px_120px_160px] gap-3 px-4 md:px-5 py-2.5 eyebrow border-b border-line">
                 <div>Token</div>
                 <div>From · click for Nansen</div>
                 <div>To · click for Nansen</div>
@@ -278,7 +279,7 @@ export default async function HomePage() {
               {snap.transfers.slice(0, 12).map((t: ParsedTransfer) => (
                 <div
                   key={`${t.txHash}-${t.logIndex}`}
-                  className="grid grid-cols-[60px_1fr_1fr_110px_120px_160px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[60px_1fr_1fr_110px_120px_160px] gap-3 px-4 md:px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
                   <span className="font-medium tracking-tighter">{t.symbol}</span>
                   <a
@@ -317,6 +318,7 @@ export default async function HomePage() {
                   </span>
                 </div>
               ))}
+              </div>
             </div>
           </section>
         ) : null}

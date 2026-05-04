@@ -42,24 +42,24 @@ export default async function AgentPage() {
     <>
       <AutoRefresh ms={30_000} />
       <section className="border-b border-line">
-        <div className="max-w-page mx-auto px-6 pt-12 md:pt-16 pb-10 grid lg:grid-cols-[1.5fr_1fr] gap-10 items-end">
+        <div className="max-w-page mx-auto px-4 md:px-6 pt-10 md:pt-16 pb-8 md:pb-10 grid lg:grid-cols-[1.5fr_1fr] gap-8 md:gap-10 items-end">
           <div>
             <div className="eyebrow mb-3">ERC-8004 · Agent identity</div>
-            <h1 className="text-display-md font-semibold text-ink">
+            <h1 className="text-[clamp(32px,5vw,64px)] leading-[1.0] tracking-tightest font-semibold text-ink">
               The Read&apos;s on-chain
               <br />
               <span className="text-accent">track record.</span>
             </h1>
-            <p className="text-[16px] text-ink-2 mt-5 max-w-2xl leading-[1.55]">
+            <p className="text-[14px] md:text-[16px] text-ink-2 mt-4 md:mt-5 max-w-2xl leading-[1.55]">
               Every alert this agent emits is hashed and pinned on Mantle via{" "}
               <code>AgentIdentity.recordAlert(tokenId, hash, uri)</code>. Anyone can audit the agent&apos;s history
               after the fact — verifiable provenance, not screenshots.
             </p>
-            <div className="mt-6">
+            <div className="mt-5 md:mt-6">
               <TelegramButton size="md" label="Get every alert in Telegram" />
             </div>
           </div>
-          <aside className="border-l-0 lg:border-l border-line lg:pl-10 grid grid-cols-2 gap-y-5 text-sm">
+          <aside className="border-t lg:border-t-0 lg:border-l border-line pt-6 lg:pt-0 lg:pl-10 grid grid-cols-2 gap-y-4 md:gap-y-5 text-sm">
             <Stat k="Token id" v={`#${tokenId}`} />
             <Stat k="Standard" v="ERC-8004" />
             <Stat k="Network" v="Mantle" />
@@ -68,7 +68,7 @@ export default async function AgentPage() {
         </div>
       </section>
 
-      <div className="max-w-page mx-auto px-6 py-14 flex flex-col gap-14">
+      <div className="max-w-page mx-auto px-4 md:px-6 py-10 md:py-14 flex flex-col gap-12 md:gap-14">
         {err ? (
           <div className="text-sm text-warn border border-line bg-paper p-4">RPC error: {err}</div>
         ) : null}
@@ -138,8 +138,9 @@ export default async function AgentPage() {
           />
 
           {snap && snap.alerts.length > 0 ? (
-            <div className="border border-line bg-paper">
-              <div className="grid grid-cols-[100px_2fr_1.5fr_200px_100px] gap-3 px-5 py-2.5 eyebrow border-b border-line">
+            <div className="border border-line bg-paper table-scroll">
+              <div className="min-w-[920px]">
+              <div className="grid grid-cols-[100px_2fr_1.5fr_200px_100px] gap-3 px-4 md:px-5 py-2.5 eyebrow border-b border-line">
                 <div>Kind</div>
                 <div>Headline</div>
                 <div>Narrative</div>
@@ -149,7 +150,7 @@ export default async function AgentPage() {
               {snap.alerts.map((a) => (
                 <div
                   key={a.id}
-                  className="grid grid-cols-[100px_2fr_1.5fr_200px_100px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[100px_2fr_1.5fr_200px_100px] gap-3 px-4 md:px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
                   <span className="eyebrow">{a.kind.replace("_", " ")}</span>
                   <span className="font-medium tracking-tighter text-ink truncate">{a.headline}</span>
@@ -166,6 +167,7 @@ export default async function AgentPage() {
                   </span>
                 </div>
               ))}
+              </div>
             </div>
           ) : (
             <div className="border border-line bg-paper p-10 text-sm text-dim text-center">

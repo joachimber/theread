@@ -2,7 +2,7 @@ import { TelegramButton } from "./TelegramButton";
 
 export function CTABanner() {
   return (
-    <section className="border border-ink bg-ink text-bg p-10 md:p-14 grid md:grid-cols-[1.4fr_1fr] gap-10 items-center relative overflow-hidden">
+    <section className="border border-ink bg-ink text-bg p-7 md:p-14 grid md:grid-cols-[1.4fr_1fr] gap-8 md:gap-10 items-center relative overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.07] pointer-events-none"
         style={{

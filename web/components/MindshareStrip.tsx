@@ -14,7 +14,7 @@ export async function MindshareStrip() {
   return (
     <section className="border border-line bg-paper">
       <div className="grid lg:grid-cols-[280px_1.2fr_1fr] gap-0">
-        <div className="border-b lg:border-b-0 lg:border-r border-line p-6">
+        <div className="border-b lg:border-b-0 lg:border-r border-line p-5 md:p-6">
           <div className="eyebrow mb-2 flex items-center gap-2">
             <span className="w-1.5 h-1.5 inline-block bg-accent" />
             Social vs on-chain

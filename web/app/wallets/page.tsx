@@ -41,17 +41,17 @@ export default async function WalletsPage() {
     <>
       <AutoRefresh ms={30_000} />
       <section className="border-b border-line">
-        <div className="max-w-page mx-auto px-6 pt-12 md:pt-16 pb-10 grid lg:grid-cols-[1.5fr_1fr] gap-10 items-end">
+        <div className="max-w-page mx-auto px-4 md:px-6 pt-10 md:pt-16 pb-8 md:pb-10 grid lg:grid-cols-[1.5fr_1fr] gap-8 md:gap-10 items-end">
           <div>
             <div className="eyebrow mb-3">Live · last {Math.round(snap.windowSec / 60)}m on Mantle</div>
-            <h1 className="text-display-md font-semibold text-ink">
+            <h1 className="text-[clamp(32px,5vw,64px)] leading-[1.0] tracking-tightest font-semibold text-ink">
               The wallets actually <span className="text-accent">moving Mantle</span>.
             </h1>
-            <p className="text-[16px] text-ink-2 mt-5 max-w-2xl leading-[1.55]">
+            <p className="text-[14px] md:text-[16px] text-ink-2 mt-4 md:mt-5 max-w-2xl leading-[1.55]">
               Ranked by total flow this window. Labels feed every alert narrative — extending the seed list is
               the highest-ROI thing for narrative quality. Click any address to open it on Mantlescan.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-5 md:mt-6 flex flex-wrap gap-3">
               <TelegramButton size="md" label="Track in Telegram" />
               <a
                 href={nansenSmartMoney}
@@ -63,7 +63,7 @@ export default async function WalletsPage() {
               </a>
             </div>
           </div>
-          <aside className="border-l-0 lg:border-l border-line lg:pl-10 grid grid-cols-2 gap-y-5 text-sm">
+          <aside className="border-t lg:border-t-0 lg:border-l border-line pt-6 lg:pt-0 lg:pl-10 grid grid-cols-2 gap-y-4 md:gap-y-5 text-sm">
             <Stat k="Wallets" v={wallets.length.toString()} />
             <Stat k="Labeled" v={labeledCount.toString()} tone={labeledCount === 0 ? "warn" : "up"} />
             <Stat k="Total flow" v={fmtUsd(totalFlow, 1)} tone="up" />
@@ -72,15 +72,16 @@ export default async function WalletsPage() {
         </div>
       </section>
 
-      <div className="max-w-page mx-auto px-6 py-12">
+      <div className="max-w-page mx-auto px-4 md:px-6 py-10 md:py-12">
         <SectionHeader
           eyebrow="Leaderboard"
           title={`Top movers · last ${Math.round(snap.windowSec / 60)} minutes`}
           description="Bars compare each wallet to the top mover. Inflow and outflow split shows direction at a glance."
           meta={`${wallets.length} wallets`}
         />
-        <div className="border border-line bg-paper">
-          <div className="grid grid-cols-[40px_1.7fr_1fr_110px_110px_110px_150px_140px] gap-3 px-5 py-3 eyebrow border-b border-line">
+        <div className="border border-line bg-paper table-scroll">
+          <div className="min-w-[1080px]">
+          <div className="grid grid-cols-[40px_1.7fr_1fr_110px_110px_110px_150px_140px] gap-3 px-4 md:px-5 py-3 eyebrow border-b border-line">
             <div>#</div>
             <div>Address</div>
             <div>Label</div>
@@ -98,7 +99,7 @@ export default async function WalletsPage() {
             return (
               <div
                 key={w.address}
-                className="grid grid-cols-[40px_1.7fr_1fr_110px_110px_110px_150px_140px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                className="grid grid-cols-[40px_1.7fr_1fr_110px_110px_110px_150px_140px] gap-3 px-4 md:px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
               >
                 <span className="text-dim text-xs tabular-nums">{(i + 1).toString().padStart(2, "0")}</span>
                 <span className="font-mono text-xs text-ink">{shortAddr(w.address)}</span>
@@ -156,6 +157,11 @@ export default async function WalletsPage() {
               No wallet activity in the live window. The chain is quiet right now — try refreshing in 30s.
             </div>
           ) : null}
+          </div>
+        </div>
+        <div className="md:hidden mt-2 text-[11px] text-dim flex items-center gap-2">
+          <span>← scroll →</span>
+          <span>full table on desktop</span>
         </div>
 
         <div className="mt-5 text-xs text-dim flex flex-wrap gap-x-6 gap-y-2">

@@ -27,7 +27,7 @@ export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark,
   return (
     <article className="border border-line bg-paper relative overflow-hidden">
       <div className="grid lg:grid-cols-[1fr_320px] gap-0">
-        <div className="p-8 md:p-10 border-b lg:border-b-0 lg:border-r border-line">
+        <div className="p-6 md:p-10 border-b lg:border-b-0 lg:border-r border-line">
           <div className="flex items-center gap-3 eyebrow mb-6">
             <span className="inline-flex items-center gap-1.5 text-accent">
               <span className="w-1.5 h-1.5 bg-accent inline-block animate-pulse" />
@@ -63,7 +63,7 @@ export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark,
             </span>
           </div>
         </div>
-        <div className="p-8 md:p-10 flex flex-col justify-between gap-7 bg-line-2/40">
+        <div className="p-6 md:p-10 flex flex-col justify-between gap-6 md:gap-7 bg-line-2/40">
           {kind === "price_spike" && pct !== undefined ? (
             <>
               <div>

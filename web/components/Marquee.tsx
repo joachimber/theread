@@ -12,7 +12,7 @@ export function Marquee({ items, blockNumber }: { items: Item[]; blockNumber: nu
   const sequence = [...filtered, ...filtered];
   return (
     <div className="border-y border-line bg-paper overflow-hidden">
-      <div className="flex items-center gap-7 whitespace-nowrap py-2.5 marquee-track text-[13px]">
+      <div className="flex items-center gap-5 md:gap-7 whitespace-nowrap py-2 md:py-2.5 marquee-track text-[11px] md:text-[13px]">
         {sequence.map((i, idx) => {
           const tone = (i.change24h ?? 0) >= 0 ? "text-accent" : "text-red";
           return (

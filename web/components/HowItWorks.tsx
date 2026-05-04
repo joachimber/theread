@@ -28,7 +28,7 @@ export function HowItWorks() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 border-l border-t border-line bg-paper">
         {steps.map((s) => (
-          <div key={s.n} className="border-r border-b border-line p-7 min-h-[200px] flex flex-col">
+          <div key={s.n} className="border-r border-b border-line p-5 md:p-7 min-h-[160px] md:min-h-[200px] flex flex-col">
             <div className="font-mono text-xs text-accent mb-3">{s.n}</div>
             <div className="text-[18px] tracking-tighter font-semibold text-ink leading-snug">{s.title}</div>
             <p className="text-sm text-ink-2 mt-3 leading-[1.6]">{s.body}</p>

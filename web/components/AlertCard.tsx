@@ -26,7 +26,7 @@ export function AlertCard({ a }: { a: AlertCardData }) {
   const tone = KIND_COLOR[a.kind] ?? "text-ink";
   const sigPip = "■".repeat(Math.max(1, Math.min(5, a.severity)));
   return (
-    <article className="border-r border-b border-line bg-paper p-5 flex flex-col gap-3 min-h-[200px] row-hover">
+    <article className="border-r border-b border-line bg-paper p-4 md:p-5 flex flex-col gap-2.5 md:gap-3 min-h-[180px] md:min-h-[200px] row-hover">
       <div className="flex items-center justify-between eyebrow">
         <div className="flex items-center gap-2">
           <span className={`${tone}`}>{a.kind.replace("_", " ")}</span>
