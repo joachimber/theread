@@ -382,10 +382,18 @@ async function computeSnapshot(): Promise<LiveSnapshot> {
     });
   }
 
-  /* (2) Whale moves — top transfers in the window, dynamic threshold */
+  /* (2) Whale moves — top transfers in the window, dynamic threshold.
+   * Dedupe swap legs: a single DEX swap shows up as multiple Transfer events
+   * (A→B + B→A on different tokens, plus router hops). We collapse anything
+   * matching (token, block, rounded-amount) into one alert so we don't say
+   * "$2.37M USDT transfer" twice for the same swap leg. */
   const whaleThreshold = transfers[0]?.usdValue && transfers[0].usdValue < 250_000 ? 25_000 : 100_000;
-  for (const t of transfers.slice(0, 5)) {
+  const seenWhale = new Set<string>();
+  for (const t of transfers.slice(0, 12)) {
     if (t.usdValue < whaleThreshold) break;
+    const dedupeKey = `${t.symbol}-${t.blockNumber}-${Math.round(t.usdValue / 1000)}`;
+    if (seenWhale.has(dedupeKey)) continue;
+    seenWhale.add(dedupeKey);
     const fromLabel = KNOWN_LABELS[t.fromAddr];
     const toLabel = KNOWN_LABELS[t.toAddr];
     const isCexFrom = fromLabel?.match(/Bybit|OKX|Binance/);
@@ -394,13 +402,20 @@ async function computeSnapshot(): Promise<LiveSnapshot> {
 
     let narrative: string;
     if (fromLabel && toLabel) {
-      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} just moved from ${fromLabel} to ${toLabel} (block ${t.blockNumber}, ${relTime(t.ts)}).`;
+      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} just moved from ${fromLabel} to ${toLabel} at block ${t.blockNumber.toLocaleString()} (${relTime(t.ts)}).`;
     } else if (fromLabel) {
-      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} just left ${fromLabel} for a wallet with no public label — ${relTime(t.ts)}.`;
+      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} just left ${fromLabel} for a wallet with no public label — block ${t.blockNumber.toLocaleString()}, ${relTime(t.ts)}.`;
     } else if (toLabel) {
-      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} arrived at ${toLabel} from an unlabeled wallet — ${relTime(t.ts)}.`;
+      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} arrived at ${toLabel} from an unlabeled wallet — block ${t.blockNumber.toLocaleString()}, ${relTime(t.ts)}.`;
     } else {
-      narrative = `${fmtUsdShort(t.usdValue)} ${t.symbol} moved between two unlabeled wallets at block ${t.blockNumber} (${relTime(t.ts)}).`;
+      // Pattern recognition: if both addresses appear high in topMovers and
+      // each side both sends + receives, it's almost always a DEX swap leg.
+      const fromMover = byWallet.get(t.fromAddr);
+      const toMover = byWallet.get(t.toAddr);
+      const looksLikeSwap = !!(fromMover && toMover && fromMover.in > 0 && fromMover.out > 0 && toMover.in > 0 && toMover.out > 0);
+      narrative = looksLikeSwap
+        ? `${fmtUsdShort(t.usdValue)} ${t.symbol} swapped between two pools at block ${t.blockNumber.toLocaleString()} — looks like a routed DEX trade (${relTime(t.ts)}).`
+        : `${fmtUsdShort(t.usdValue)} ${t.symbol} moved between two unlabeled wallets at block ${t.blockNumber.toLocaleString()} (${relTime(t.ts)}).`;
     }
 
     alerts.push({

@@ -9,9 +9,19 @@ interface HeroAlertProps {
   ago: string;
   spark: number[];
   pct?: number;
+  usd?: number;
+  blockNumber?: number;
 }
 
-export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark, pct }: HeroAlertProps) {
+function fmtUsdShort(n: number): string {
+  const a = Math.abs(n);
+  if (a >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+  if (a >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `$${(n / 1e3).toFixed(1)}K`;
+  return `$${n.toFixed(0)}`;
+}
+
+export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark, pct, usd }: HeroAlertProps) {
   const tone = (pct ?? 0) > 0 ? "text-accent" : (pct ?? 0) < 0 ? "text-red" : "text-ink";
 
   return (
@@ -44,19 +54,52 @@ export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark,
           </div>
         </div>
         <div className="p-8 md:p-10 flex flex-col justify-between gap-7 bg-line-2/40">
-          <div>
-            <div className="eyebrow mb-3">Window flow</div>
-            <div className={tone}>
-              <Sparkline values={spark.length ? spark : [0]} width={240} height={64} strokeWidth={1.6} fill="currentColor" />
-            </div>
-          </div>
-          <div>
-            <div className="eyebrow mb-2">Move · 24h</div>
-            <div className={`text-[44px] leading-none font-semibold tracking-tighter tabular-nums ${tone}`}>
-              {pct !== undefined ? `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%` : "—"}
-            </div>
-            <div className="text-xs text-dim mt-2">priced via Coingecko, decoded from chain</div>
-          </div>
+          {kind === "price_spike" && pct !== undefined ? (
+            <>
+              <div>
+                <div className="eyebrow mb-3">{token} flow · past 8 min</div>
+                <div className={tone}>
+                  <Sparkline values={spark.length ? spark : [0]} width={240} height={64} strokeWidth={1.6} fill="currentColor" />
+                </div>
+              </div>
+              <div>
+                <div className="eyebrow mb-2">Move · past 24 hours</div>
+                <div className={`text-[44px] leading-none font-semibold tracking-tighter tabular-nums ${tone}`}>
+                  {pct >= 0 ? "+" : ""}
+                  {pct.toFixed(2)}%
+                </div>
+                <div className="text-xs text-dim mt-2">priced via Coingecko</div>
+              </div>
+            </>
+          ) : kind === "whale_move" && usd !== undefined ? (
+            <>
+              <div>
+                <div className="eyebrow mb-2">Transfer size</div>
+                <div className="text-[44px] leading-none font-semibold tracking-tighter tabular-nums text-ink">
+                  {fmtUsdShort(usd)}
+                </div>
+                <div className="text-xs text-dim mt-2">{token} · single Transfer log</div>
+              </div>
+              <div>
+                <div className="eyebrow mb-3">{token} flow · past 8 min</div>
+                <div className="text-ink">
+                  <Sparkline values={spark.length ? spark : [0]} width={240} height={56} strokeWidth={1.6} fill="currentColor" />
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <div className="eyebrow mb-3">{token} flow · past 8 min</div>
+                <div className="text-ink">
+                  <Sparkline values={spark.length ? spark : [0]} width={240} height={64} strokeWidth={1.6} fill="currentColor" />
+                </div>
+              </div>
+              <div className="text-xs text-dim">
+                Sparkline = USD volume per ~30s bucket within the live window. Decoded straight from chain.
+              </div>
+            </>
+          )}
         </div>
       </div>
     </article>

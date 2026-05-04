@@ -79,9 +79,9 @@ export default async function HomePage() {
               <span className="text-accent">in one sentence.</span>
             </h1>
             <p className="text-[18px] md:text-[20px] text-ink-2 mt-7 max-w-2xl leading-[1.5]">
-              The Read is an autonomous agent that watches Mantle 24/7. It paraphrases price spikes, volume
-              anomalies, and whale flows in real time, names the wallets behind them, and pins each alert hash
-              on-chain via an ERC-8004 agent identity NFT.
+              The Read is an autonomous agent that watches Mantle 24/7. It calls out price spikes, volume
+              anomalies, and whale flows the moment they happen, names the wallets behind them, and pins each
+              alert hash on-chain via an ERC-8004 agent identity NFT.
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-9">
               <TelegramButton size="lg" />
@@ -93,14 +93,15 @@ export default async function HomePage() {
           <aside className="border-l-0 lg:border-l border-line lg:pl-10">
             <div className="grid grid-cols-2 gap-y-5 text-sm">
               <Lookup k="Block" v={snap.blockNumber.toLocaleString()} />
-              <Lookup k="Transfers · last 8m" v={snap.transfers.length.toLocaleString()} />
+              <Lookup k="Transfers · past 8 min" v={snap.transfers.length.toLocaleString()} />
               <Lookup k="Active wallets" v={snap.walletCount.toLocaleString()} />
-              <Lookup k="USD flow · 8m" v={fmtUsd(totalVolume, 1)} tone="up" />
+              <Lookup k="USD flow · past 8 min" v={fmtUsd(totalVolume, 1)} tone="up" />
               <Lookup k="Live alerts" v={snap.alerts.length.toString()} tone="up" />
               <Lookup k="Agent" v="ERC-8004 #1" />
             </div>
             <div className="mt-7 pt-5 border-t border-line text-[12px] text-dim leading-relaxed">
-              Decoded straight from Mantle&apos;s public RPC. Snapshot cached 60s, page revalidates every 30s.
+              Each render pulls the last 250 Mantle blocks (~8 minutes at 2s/block) directly from the public RPC.
+              Snapshot is cached 60s; the page re-fetches every 30s.
             </div>
           </aside>
         </div>
@@ -128,6 +129,8 @@ export default async function HomePage() {
                 snap.topByToken[0]?.spark ?? []
               }
               pct={hero.pct}
+              usd={hero.usd}
+              blockNumber={snap.blockNumber}
             />
           </section>
         ) : null}
@@ -135,23 +138,31 @@ export default async function HomePage() {
         {/* STATS BENTO */}
         <section className="grid grid-cols-2 md:grid-cols-4 border-l border-t border-line bg-paper">
           <StatBlock
-            label="Window flow"
+            label="USD flow · past 8 min"
             value={fmtUsd(totalVolume, 1)}
-            sub={`${snap.transfers.length} transfers in 8 minutes`}
+            sub={`${snap.transfers.length} ERC-20 transfers · ~${Math.round(snap.windowSec / 60)} min`}
             spark={topMover?.spark}
             tone="up"
           />
           <StatBlock
-            label="Active wallets"
+            label="Active wallets · past 8 min"
             value={snap.walletCount.toLocaleString()}
-            sub="distinct addresses · this window"
+            sub="distinct addresses sending or receiving"
           />
           <StatBlock
             label="Live alerts"
             value={snap.alerts.length.toString()}
-            sub={`${snap.alerts.filter((a) => a.kind === "whale_move").length} whale · ${
-              snap.alerts.filter((a) => a.kind === "price_spike").length
-            } price · ${snap.alerts.filter((a) => a.kind === "volume_spike").length} flow`}
+            sub={(() => {
+              const w = snap.alerts.filter((a) => a.kind === "whale_move").length;
+              const p = snap.alerts.filter((a) => a.kind === "price_spike").length;
+              const v = snap.alerts.filter((a) => a.kind === "volume_spike").length;
+              const parts = [
+                w ? `${w} whale` : null,
+                p ? `${p} price` : null,
+                v ? `${v} flow` : null,
+              ].filter(Boolean);
+              return parts.length ? parts.join(" · ") : "current window";
+            })()}
             tone="warn"
           />
           <StatBlock label="Agent identity" value="ERC-8004" sub="The Read · #1" />
@@ -162,7 +173,7 @@ export default async function HomePage() {
           <SectionHeader
             eyebrow="Recent alerts"
             title="What the agent is saying right now"
-            description="Each card is a one-sentence read paraphrased by Claude from structured detector output. Never a wallet address — only labels."
+            description="Each card is a one-sentence read written by Claude from structured detector output. Wallets are referenced by label, never raw address."
             meta={`${rest.length + (hero ? 1 : 0)} active`}
           />
           {rest.length === 0 && !hero ? (
@@ -188,18 +199,18 @@ export default async function HomePage() {
         <section className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-10">
           <div>
             <SectionHeader
-              eyebrow={`Tokens · last ${Math.round(snap.windowSec / 60)}m`}
+              eyebrow={`Tokens · past ${Math.round(snap.windowSec / 60)} min`}
               title="Where flow is happening on Mantle"
-              description="Sparklines = USD volume per ~30s bucket. Prices and 24h via Coingecko."
+              description="Each row's sparkline is USD transfer volume bucketed within the 8-minute window. Spot price + 24h change via Coingecko."
               meta={`${snap.topByToken.length} watched`}
             />
             <TokenBoard rows={snap.topByToken} />
           </div>
           <div>
             <SectionHeader
-              eyebrow="Top wallet movers"
-              title="Live window leaderboard"
-              description="Click an address to inspect on Mantlescan. Labels feed every alert narrative."
+              eyebrow="Top wallets · past 8 min"
+              title="Who's moving the most"
+              description="Ranked by total USD flow in the window. Labels (when available) feed every alert narrative — click any address to inspect on Mantlescan."
               meta={`${snap.topMovers.length} ranked`}
             />
             <div className="border border-line bg-paper">
@@ -238,7 +249,7 @@ export default async function HomePage() {
             <SectionHeader
               eyebrow="Largest transfers · raw chain"
               title="Decoded ERC-20 logs"
-              description={`Pulled directly off Mantle's public RPC across the most recent ${Math.round(snap.windowSec / 60)} minutes. No database in the loop.`}
+              description={`Pulled directly off Mantle's public RPC across the past ${Math.round(snap.windowSec / 60)} minutes (~${250} blocks). No database in the loop — every number on this row is decoded on render.`}
               meta={`${snap.transfers.length} parsed`}
             />
             <div className="border border-line bg-paper">
