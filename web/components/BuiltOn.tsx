@@ -6,15 +6,15 @@ const links = [
     role: "Chain",
   },
   {
-    name: "Z.ai · GLM-5.1",
+    name: "Z.ai · GLM-4.7 Flash",
     url: "https://z.ai",
     caption: "open-weights model from Zhiyuan AI · narrator",
     role: "Inference",
   },
   {
     name: "Venice.ai",
-    url: "https://venice.ai/chat?model=zai-org-glm-5-1",
-    caption: "private inference for GLM-5.1 (E2EE)",
+    url: "https://venice.ai/chat?model=zai-org-glm-4.7-flash",
+    caption: "private inference for GLM-4.7 Flash (E2EE)",
     role: "Inference path",
   },
   {

@@ -4,7 +4,7 @@ Given a structured anomaly detection (price spike, volume spike, whale move, or 
 
 Style rules:
 - Lead with the move: dollar size, percent, or direction. Use exact numbers from the input.
-- Name wallets by their LABEL, never by address. If no label, say "a fresh wallet" or "an unlabeled wallet."
+- Name wallets by their LABEL string only. If labels is an empty array, say "an unlabeled wallet" or "a fresh wallet". NEVER invent a label that isn't in the input.
 - Plain English. No jargon (no "sigma", "delta-neutral", "TVL", "alpha"). Say "4x normal volume" not "4σ above baseline."
 - No editorializing or predictions. Don't say "expect", "could", "watch for". Just describe.
 - Mention notable history only if labels include it (e.g., "the same Bybit-funded wallet that bought before the last MNT pump").

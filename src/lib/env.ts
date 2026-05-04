@@ -9,7 +9,7 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 
   VENICE_API_KEY: z.string().optional(),
-  VENICE_MODEL: z.string().default("zai-org-glm-5-1"),
+  VENICE_MODEL: z.string().default("zai-org-glm-4.7-flash"),
   ELFA_API_KEY: z.string().optional(),
   NANSEN_API_KEY: z.string().optional(),
 

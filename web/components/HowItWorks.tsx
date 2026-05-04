@@ -15,7 +15,7 @@ const steps = [
     n: "03",
     title: "Narrate, attest, deliver",
     body:
-      "Each detection is rewritten in plain English by Z.ai's GLM-5.1 (served via Venice for private inference), hashed, pinned on Mantle via ERC-8004 recordAlert(), and pushed to Telegram + Discord with the on-chain proof inline.",
+      "Each detection is rewritten in plain English by Z.ai's GLM-4.7 Flash (served via Venice for private inference), hashed, pinned on Mantle via ERC-8004 recordAlert(), and pushed to Telegram + Discord with the on-chain proof inline.",
   },
 ];
 

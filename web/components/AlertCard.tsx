@@ -69,7 +69,7 @@ export function AlertCard({ a }: { a: AlertCardData }) {
             )}
           </span>
           <span className="text-dim/70">·</span>
-          <span className="text-dim/70 text-[10px] uppercase tracking-widest">via GLM-5.1</span>
+          <span className="text-dim/70 text-[10px] uppercase tracking-widest">via GLM-4.7</span>
         </div>
         {a.spark?.length ? (
           <div className={tone}>

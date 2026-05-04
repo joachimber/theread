@@ -53,7 +53,7 @@ export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark,
             <span>
               narrated by{" "}
               <a href="https://z.ai" target="_blank" rel="noreferrer" className="link">
-                Z.ai GLM-5.1
+                Z.ai GLM-4.7 Flash
               </a>
               {" "}via{" "}
               <a href="https://venice.ai" target="_blank" rel="noreferrer" className="link">

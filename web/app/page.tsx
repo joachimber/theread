@@ -184,7 +184,7 @@ export default async function HomePage() {
           <SectionHeader
             eyebrow="Recent alerts"
             title="What the agent is saying right now"
-            description="Each card is a one-sentence read written by Z.ai's GLM-5.1 from structured detector output. Wallets are referenced by label, never raw address."
+            description="Each card is a one-sentence read written by Z.ai's GLM-4.7 Flash from structured detector output. Wallets are referenced by label, never raw address."
             meta={`${rest.length + (hero ? 1 : 0)} active`}
           />
           {rest.length === 0 && !hero ? (
