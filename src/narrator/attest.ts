@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql, and, gte, isNotNull } from "drizzle-orm";
 import { createWalletClient, http, type Hex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { db } from "../db/index.js";
@@ -10,15 +10,45 @@ import { log } from "../lib/log.js";
 
 /**
  * Record an alert's hash on-chain via the ERC-8004 agent identity contract.
- * Best-effort, fire-and-forget — failures don't block the alert pipeline.
  *
- * Attestation provides verifiable provenance: the moment a Detection becomes
- * an Alert, its content hash is fixed and can be checked against the
- * on-chain log later. This is the demo's "ERC-8004 reputation" hook.
+ * Cost-bounded: only attests when (1) the agent identity is configured,
+ * (2) severity >= ATTESTATION_SEVERITY_FLOOR (default 3), and (3) we're
+ * under the daily cap (default 30 attestations / 24h). The detector still
+ * produces every alert and pushes them to Telegram + the dashboard — only
+ * the high-signal subset gets pinned on-chain so we don't drain the gas
+ * wallet on routine noise.
  */
-export async function recordAttestation(alertId: number, alertHash: string): Promise<void> {
+export async function recordAttestation(
+  alertId: number,
+  alertHash: string,
+  severity = 5,
+): Promise<void> {
   if (!env.AGENT_IDENTITY_ADDRESS || !env.AGENT_TOKEN_ID || !env.DEPLOYER_PRIVATE_KEY) {
-    log.debug({ alertId }, "attestation skipped (missing agent identity config)");
+    log.debug({ alertId }, "attestation skipped (agent identity not configured)");
+    return;
+  }
+
+  if (severity < env.ATTESTATION_SEVERITY_FLOOR) {
+    log.debug(
+      { alertId, severity, floor: env.ATTESTATION_SEVERITY_FLOOR },
+      "attestation skipped (below severity floor)",
+    );
+    return;
+  }
+
+  // 24h rolling cap — count attestations actually written on-chain
+  const [{ c }] = (await db.execute<{ c: string }>(sql`
+    SELECT COUNT(*)::text AS c
+    FROM ${alertsTable}
+    WHERE attestation_tx IS NOT NULL
+      AND created_at >= NOW() - INTERVAL '24 hours'
+  `)) as unknown as Array<{ c: string }>;
+  const todayCount = Number(c ?? 0);
+  if (todayCount >= env.ATTESTATION_DAILY_CAP) {
+    log.warn(
+      { alertId, todayCount, cap: env.ATTESTATION_DAILY_CAP },
+      "attestation skipped (daily cap reached)",
+    );
     return;
   }
 
@@ -30,7 +60,7 @@ export async function recordAttestation(alertId: number, alertHash: string): Pro
       transport: http(env.MANTLE_RPC_URL),
     });
 
-    const uri = `https://theread.xyz/alert/${alertId}`;
+    const uri = `https://theread-frederik-busslercos-projects.vercel.app/agent`;
     const txHash = await wallet.writeContract({
       address: env.AGENT_IDENTITY_ADDRESS as `0x${string}`,
       abi: agentIdentityAbi,
@@ -39,7 +69,7 @@ export async function recordAttestation(alertId: number, alertHash: string): Pro
     });
 
     await db.update(alertsTable).set({ attestationTx: txHash }).where(eq(alertsTable.id, alertId));
-    log.info({ alertId, txHash }, "attestation recorded on Mantle");
+    log.info({ alertId, txHash, todayCount: todayCount + 1 }, "attestation recorded on Mantle");
   } catch (err) {
     log.warn({ err: String(err), alertId }, "attestation failed");
   }

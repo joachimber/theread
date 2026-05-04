@@ -79,7 +79,7 @@ async function handleDetection(d: Detection): Promise<void> {
   );
 
   await dispatchAlert({ id: alertId, headline: d.headline, narrative, severity: d.severity, txUrl, kind: d.kind, token: d.token });
-  void recordAttestation(alertId, alertHash);
+  void recordAttestation(alertId, alertHash, d.severity);
 }
 
 export async function runDetectorLoop(intervalMs = 30_000): Promise<void> {
