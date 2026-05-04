@@ -1,0 +1,39 @@
+{
+  "name": "narrate_event",
+  "displayName": "Narrate Mantle Event",
+  "description": "Given a structured on-chain anomaly (price spike, volume anomaly, whale move) with named wallet labels, return a 1-2 sentence read in plain English. Powered by Z.ai GLM-5.1.",
+  "fee": 0.1,
+  "currency": "USDC",
+  "requirementsSchema": {
+    "type": "object",
+    "required": ["kind", "token"],
+    "properties": {
+      "kind": {
+        "type": "string",
+        "enum": ["price_spike", "volume_spike", "whale_move", "flow_shift"]
+      },
+      "token": { "type": "string", "description": "Token symbol (e.g. MNT, mETH, USDe)" },
+      "metrics": {
+        "type": "object",
+        "description": "Free-form metric bag — pct, usd, sigma, etc.",
+        "additionalProperties": true
+      },
+      "actors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "labels": { "type": "array", "items": { "type": "string" } },
+            "usdValue": { "type": "number" },
+            "action": { "type": "string", "enum": ["buy", "sell", "in", "out"] },
+            "token": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "subscriptionTiers": [
+    { "name": "starter", "price": 5, "duration": 30 },
+    { "name": "pro", "price": 25, "duration": 30 }
+  ]
+}

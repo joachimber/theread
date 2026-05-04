@@ -1,0 +1,18 @@
+{
+  "name": "mantle_smart_money",
+  "displayName": "Mantle Smart Money · Live",
+  "description": "Returns the top wallet movers on Mantle in the last 8 minutes — total flow, inflow/outflow split, and dominant token. Buyers (e.g. trading agents) use this to copy-trade or to spot anomalies before they hit Twitter.",
+  "fee": 0.25,
+  "currency": "USDC",
+  "requirementsSchema": {
+    "type": "object",
+    "properties": {
+      "limit": { "type": "integer", "minimum": 1, "maximum": 50, "default": 10 },
+      "minUsd": { "type": "number", "minimum": 0, "default": 1000 }
+    }
+  },
+  "subscriptionTiers": [
+    { "name": "starter", "price": 10, "duration": 30 },
+    { "name": "pro", "price": 50, "duration": 30 }
+  ]
+}

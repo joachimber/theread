@@ -3,13 +3,14 @@ import { env } from "../lib/env.js";
 import { log } from "../lib/log.js";
 import { fmtUsd, fmtPct } from "../lib/format.js";
 import { SYSTEM_PROMPT } from "./prompts.js";
+import { veniceNarrate } from "./venice.js";
 import type { Detection } from "../detector/types.js";
 
-let client: Anthropic | null = null;
-function getClient(): Anthropic | null {
+let anthropic: Anthropic | null = null;
+function getAnthropic(): Anthropic | null {
   if (!env.ANTHROPIC_API_KEY) return null;
-  if (!client) client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-  return client;
+  if (!anthropic) anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  return anthropic;
 }
 
 function fallbackNarrative(d: Detection): string {
@@ -28,55 +29,53 @@ function fallbackNarrative(d: Detection): string {
   }
 }
 
-/**
- * Convert a Detection into 1-2 sentences suitable for Telegram / Discord / dashboard.
- * Falls back to a template when ANTHROPIC_API_KEY is missing or the call errors.
- */
-export async function narrate(d: Detection): Promise<string> {
-  const c = getClient();
-  if (!c) return fallbackNarrative(d);
-
-  const userMessage = JSON.stringify(
-    {
-      kind: d.kind,
-      token: d.token,
-      severity: d.severity,
-      windowMin: d.windowMin,
-      metrics: d.metrics,
-      actors: d.actors.map((a) => ({
-        labels: a.labels,
-        usdValue: a.usdValue,
-        action: a.action,
-        token: a.token,
-      })),
-    },
-    null,
-    0,
-  );
-
+async function anthropicNarrate(d: Detection): Promise<string | null> {
+  const c = getAnthropic();
+  if (!c) return null;
+  const userMessage = JSON.stringify({
+    kind: d.kind,
+    token: d.token,
+    severity: d.severity,
+    windowMin: d.windowMin,
+    metrics: d.metrics,
+    actors: d.actors.map((a) => ({
+      labels: a.labels,
+      usdValue: a.usdValue,
+      action: a.action,
+      token: a.token,
+    })),
+  });
   try {
     const res = await c.messages.create({
       model: env.NARRATOR_MODEL,
       max_tokens: 200,
       system: [
-        {
-          type: "text",
-          text: SYSTEM_PROMPT,
-          cache_control: { type: "ephemeral" },
-        },
+        { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
       ],
       messages: [{ role: "user", content: userMessage }],
     });
-
     const text = res.content
       .filter((c): c is Anthropic.TextBlock => c.type === "text")
       .map((c) => c.text)
       .join("")
       .trim();
-
-    return text || fallbackNarrative(d);
+    return text || null;
   } catch (err) {
-    log.warn({ err: String(err) }, "narrator API failed");
-    return fallbackNarrative(d);
+    log.warn({ err: String(err) }, "anthropic narrator failed");
+    return null;
   }
+}
+
+/**
+ * Convert a Detection into 1-2 sentences. Resolution order:
+ *   1. Venice.ai (Z.ai GLM-5.1) — primary
+ *   2. Anthropic Claude — fallback
+ *   3. Hardcoded template — always works
+ */
+export async function narrate(d: Detection): Promise<string> {
+  const venice = await veniceNarrate(d);
+  if (venice) return venice;
+  const claude = await anthropicNarrate(d);
+  if (claude) return claude;
+  return fallbackNarrative(d);
 }

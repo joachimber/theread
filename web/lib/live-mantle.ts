@@ -156,6 +156,8 @@ export interface LiveAlert {
   ts: Date;
   pct?: number;
   usd?: number;
+  /** which inference backend produced the narrative ("venice" / "fallback") */
+  narratorVia?: "venice" | "fallback";
 }
 
 let snapshotCache: LiveSnapshot | null = null;
@@ -478,6 +480,27 @@ async function computeSnapshot(): Promise<LiveSnapshot> {
     if (aReal !== bReal) return bReal - aReal;
     return b.severity - a.severity;
   });
+
+  // Enhance the top alert with a Venice (Z.ai GLM-5.1) narrative if a key is
+  // available. One inference per snapshot (60s TTL) keeps cost bounded.
+  if (alerts[0] && process.env.VENICE_API_KEY) {
+    const { veniceNarrate } = await import("./venice");
+    const top = alerts[0];
+    const result = await veniceNarrate({
+      kind: top.kind,
+      token: top.token,
+      metrics: { pct: top.pct, usd: top.usd, windowMin: 8, severity: top.severity },
+      actors: topMovers.slice(0, 3).map((m) => ({
+        labels: m.label ? [m.label] : [],
+        usdValue: m.inflowUsd + m.outflowUsd,
+        action: m.netUsd >= 0 ? "buy" : "sell",
+        token: m.topToken,
+      })),
+      fallback: top.narrative,
+    });
+    top.narrative = result.text;
+    top.narratorVia = result.via;
+  }
 
   const prices = Object.fromEntries(priceCache.entries());
 

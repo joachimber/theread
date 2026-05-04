@@ -10,6 +10,10 @@ const schema = z.object({
 
   ANTHROPIC_API_KEY: z.string().optional(),
   NARRATOR_MODEL: z.string().default("claude-sonnet-4-6"),
+  VENICE_API_KEY: z.string().optional(),
+  VENICE_MODEL: z.string().default("zai-org-glm-5-1"),
+  ELFA_API_KEY: z.string().optional(),
+  NANSEN_API_KEY: z.string().optional(),
 
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   TELEGRAM_CHANNEL_ID: z.string().optional(),

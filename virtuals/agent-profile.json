@@ -1,0 +1,13 @@
+{
+  "name": "The Read",
+  "description": "An autonomous on-chain agent that watches Mantle 24/7 and rewrites every market move in plain English. Each alert is hashed and pinned to Mantle via an ERC-8004 identity NFT for verifiable provenance. Powered by Z.ai GLM-5.1 (via Venice) and decoded directly off public RPC.",
+  "tags": ["mantle", "alpha", "narrator", "erc-8004", "agent-identity"],
+  "homepage": "https://theread.xyz",
+  "telegram": "https://t.me/theread_mantle_bot",
+  "github": "https://github.com/your-handle/theread",
+  "track": "Mantle Turing Test 2026 · Alpha & Data",
+  "capabilities": [
+    "narrate_event",
+    "mantle_smart_money"
+  ]
+}

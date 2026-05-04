@@ -50,7 +50,17 @@ export function HeroAlert({ kind, token, headline, narrative, txUrl, ago, spark,
                 view on Mantlescan ↗
               </a>
             ) : null}
-            <span>narrated by Claude · attested via ERC-8004</span>
+            <span>
+              narrated by{" "}
+              <a href="https://z.ai" target="_blank" rel="noreferrer" className="link">
+                Z.ai GLM-5.1
+              </a>
+              {" "}via{" "}
+              <a href="https://venice.ai" target="_blank" rel="noreferrer" className="link">
+                Venice
+              </a>
+              {" "}· attested via ERC-8004
+            </span>
           </div>
         </div>
         <div className="p-8 md:p-10 flex flex-col justify-between gap-7 bg-line-2/40">

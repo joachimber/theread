@@ -47,7 +47,7 @@ export function AlertCard({ a }: { a: AlertCardData }) {
       <p className="text-[14px] text-ink-2 leading-[1.55]">{a.narrative}</p>
 
       <div className="mt-auto flex items-center justify-between text-xs">
-        <div className="flex items-center gap-3 text-dim">
+        <div className="flex items-center gap-2.5 text-dim flex-wrap">
           {a.txUrl ? (
             <a href={a.txUrl} target="_blank" rel="noreferrer" className="link">
               tx ↗
@@ -68,6 +68,8 @@ export function AlertCard({ a }: { a: AlertCardData }) {
               <span className="text-dim">unattested</span>
             )}
           </span>
+          <span className="text-dim/70">·</span>
+          <span className="text-dim/70 text-[10px] uppercase tracking-widest">via GLM-5.1</span>
         </div>
         {a.spark?.length ? (
           <div className={tone}>

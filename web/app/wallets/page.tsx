@@ -2,6 +2,7 @@ import { AutoRefresh } from "../../components/AutoRefresh";
 import { SectionHeader } from "../../components/SectionHeader";
 import { TelegramButton } from "../../components/TelegramButton";
 import { getLiveSnapshot } from "../../lib/live-mantle";
+import { mantlescanAddress, nansenProfiler, nansenSmartMoney } from "../../lib/links";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 30;
@@ -50,8 +51,16 @@ export default async function WalletsPage() {
               Ranked by total flow this window. Labels feed every alert narrative — extending the seed list is
               the highest-ROI thing for narrative quality. Click any address to open it on Mantlescan.
             </p>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap gap-3">
               <TelegramButton size="md" label="Track in Telegram" />
+              <a
+                href={nansenSmartMoney}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-ghost text-sm"
+              >
+                Smart Money on Nansen ↗
+              </a>
             </div>
           </div>
           <aside className="border-l-0 lg:border-l border-line lg:pl-10 grid grid-cols-2 gap-y-5 text-sm">
@@ -71,7 +80,7 @@ export default async function WalletsPage() {
           meta={`${wallets.length} wallets`}
         />
         <div className="border border-line bg-paper">
-          <div className="grid grid-cols-[44px_2fr_1.2fr_120px_120px_120px_180px] gap-3 px-5 py-3 eyebrow border-b border-line">
+          <div className="grid grid-cols-[40px_1.7fr_1fr_110px_110px_110px_150px_140px] gap-3 px-5 py-3 eyebrow border-b border-line">
             <div>#</div>
             <div>Address</div>
             <div>Label</div>
@@ -79,6 +88,7 @@ export default async function WalletsPage() {
             <div className="text-right">Outflow</div>
             <div className="text-right">Net</div>
             <div>Activity</div>
+            <div className="text-right">Inspect</div>
           </div>
           {wallets.map((w, i) => {
             const total = w.inflowUsd + w.outflowUsd;
@@ -86,12 +96,9 @@ export default async function WalletsPage() {
             const netTone = w.netUsd > 0 ? "text-accent" : w.netUsd < 0 ? "text-red" : "text-ink";
             const inflowPct = total > 0 ? (w.inflowUsd / total) * 100 : 50;
             return (
-              <a
+              <div
                 key={w.address}
-                href={`https://mantlescan.xyz/address/${w.address}`}
-                target="_blank"
-                rel="noreferrer"
-                className="grid grid-cols-[44px_2fr_1.2fr_120px_120px_120px_180px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                className="grid grid-cols-[40px_1.7fr_1fr_110px_110px_110px_150px_140px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
               >
                 <span className="text-dim text-xs tabular-nums">{(i + 1).toString().padStart(2, "0")}</span>
                 <span className="font-mono text-xs text-ink">{shortAddr(w.address)}</span>
@@ -123,7 +130,25 @@ export default async function WalletsPage() {
                   </span>
                   <span className="text-[10px] tabular-nums text-dim w-9 text-right">{w.txCount}tx</span>
                 </span>
-              </a>
+                <span className="flex items-center gap-3 text-xs justify-end">
+                  <a
+                    href={mantlescanAddress(w.address)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-dim hover:text-accent"
+                  >
+                    Mantlescan ↗
+                  </a>
+                  <a
+                    href={nansenProfiler(w.address)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-dim hover:text-accent"
+                  >
+                    Nansen ↗
+                  </a>
+                </span>
+              </div>
             );
           })}
           {wallets.length === 0 ? (
@@ -141,7 +166,7 @@ export default async function WalletsPage() {
             <span className="w-2 h-2 bg-red inline-block" /> outflow
           </span>
           <span>· bar width = relative to top mover</span>
-          <span>· labels seed: <code>src/indexer/labels.ts</code></span>
+          <span>· every address links to Mantlescan + Nansen for copy-trade research</span>
         </div>
       </div>
     </>

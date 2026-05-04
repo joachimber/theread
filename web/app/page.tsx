@@ -10,6 +10,8 @@ import { SectionHeader } from "../components/SectionHeader";
 import { HowItWorks } from "../components/HowItWorks";
 import { BuiltOn } from "../components/BuiltOn";
 import { CTABanner } from "../components/CTABanner";
+import { MindshareStrip } from "../components/MindshareStrip";
+import { AvailableOnVirtuals } from "../components/AvailableOnVirtuals";
 import {
   getLiveSnapshot,
   type LiveAlert,
@@ -173,7 +175,7 @@ export default async function HomePage() {
           <SectionHeader
             eyebrow="Recent alerts"
             title="What the agent is saying right now"
-            description="Each card is a one-sentence read written by Claude from structured detector output. Wallets are referenced by label, never raw address."
+            description="Each card is a one-sentence read written by Z.ai's GLM-5.1 from structured detector output. Wallets are referenced by label, never raw address."
             meta={`${rest.length + (hero ? 1 : 0)} active`}
           />
           {rest.length === 0 && !hero ? (
@@ -210,29 +212,41 @@ export default async function HomePage() {
             <SectionHeader
               eyebrow="Top wallets · past 8 min"
               title="Who's moving the most"
-              description="Ranked by total USD flow in the window. Labels (when available) feed every alert narrative — click any address to inspect on Mantlescan."
+              description="Ranked by total USD flow in the window. Click any address to research it on Nansen — labels there feed every alert narrative."
               meta={`${snap.topMovers.length} ranked`}
             />
             <div className="border border-line bg-paper">
               {snap.topMovers.slice(0, 10).map((m: WalletMover, i) => (
-                <a
+                <div
                   key={m.address}
-                  href={`https://mantlescan.xyz/address/${m.address}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="grid grid-cols-[28px_1fr_92px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[28px_1fr_92px_72px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
                   <span className="text-dim text-xs tabular-nums">{(i + 1).toString().padStart(2, "0")}</span>
-                  <span className="flex flex-col gap-0.5 min-w-0">
+                  <a
+                    href={`https://app.nansen.ai/profiler/${m.address}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex flex-col gap-0.5 min-w-0 hover:text-accent"
+                  >
                     <span className="font-mono text-xs text-ink">{shortAddr(m.address)}</span>
                     {m.label ? (
                       <span className="eyebrow text-accent">{m.label}</span>
                     ) : (
                       <span className="eyebrow text-dim">unlabeled · {m.topToken}</span>
                     )}
-                  </span>
+                  </a>
                   <span className="text-right tabular-nums text-ink">{fmtUsd(m.inflowUsd + m.outflowUsd, 1)}</span>
-                </a>
+                  <span className="text-right text-xs">
+                    <a
+                      href={`https://app.nansen.ai/profiler/${m.address}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-dim hover:text-accent"
+                    >
+                      Nansen ↗
+                    </a>
+                  </span>
+                </div>
               ))}
               {snap.topMovers.length === 0 ? (
                 <div className="px-5 py-10 text-sm text-dim text-center">
@@ -253,37 +267,72 @@ export default async function HomePage() {
               meta={`${snap.transfers.length} parsed`}
             />
             <div className="border border-line bg-paper">
-              <div className="grid grid-cols-[80px_1fr_1fr_120px_140px] gap-3 px-5 py-2.5 eyebrow border-b border-line">
+              <div className="grid grid-cols-[60px_1fr_1fr_110px_120px_160px] gap-3 px-5 py-2.5 eyebrow border-b border-line">
                 <div>Token</div>
-                <div>From</div>
-                <div>To</div>
+                <div>From · click for Nansen</div>
+                <div>To · click for Nansen</div>
                 <div className="text-right">USD</div>
                 <div className="text-right">Block · Age</div>
+                <div className="text-right">Tx</div>
               </div>
               {snap.transfers.slice(0, 12).map((t: ParsedTransfer) => (
-                <a
+                <div
                   key={`${t.txHash}-${t.logIndex}`}
-                  href={`https://mantlescan.xyz/tx/${t.txHash}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="grid grid-cols-[80px_1fr_1fr_120px_140px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
+                  className="grid grid-cols-[60px_1fr_1fr_110px_120px_160px] gap-3 px-5 py-3 items-center text-sm border-b border-line last:border-b-0 row-hover"
                 >
                   <span className="font-medium tracking-tighter">{t.symbol}</span>
-                  <span className="font-mono text-xs truncate text-ink-2">{shortAddr(t.fromAddr)}</span>
-                  <span className="font-mono text-xs truncate text-ink-2">{shortAddr(t.toAddr)}</span>
+                  <a
+                    href={`https://app.nansen.ai/profiler/${t.fromAddr}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono text-xs truncate text-ink-2 hover:text-accent"
+                    title="Inspect sender on Nansen"
+                  >
+                    {shortAddr(t.fromAddr)}
+                  </a>
+                  <a
+                    href={`https://app.nansen.ai/profiler/${t.toAddr}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-mono text-xs truncate text-ink-2 hover:text-accent"
+                    title="Inspect receiver on Nansen"
+                  >
+                    {shortAddr(t.toAddr)}
+                  </a>
                   <span className="text-right tabular-nums">
                     {fmtUsd(t.usdValue, t.usdValue >= 1000 ? 1 : 0)}
                   </span>
                   <span className="text-right tabular-nums text-dim text-xs">
                     {t.blockNumber.toLocaleString()} · {relTime(t.ts)}
                   </span>
-                </a>
+                  <span className="text-right text-xs flex justify-end gap-3">
+                    <a
+                      href={`https://mantlescan.xyz/tx/${t.txHash}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-dim hover:text-accent"
+                    >
+                      tx ↗
+                    </a>
+                  </span>
+                </div>
               ))}
             </div>
           </section>
         ) : null}
 
+        <section>
+          <SectionHeader
+            eyebrow="Mindshare layer"
+            title="Where social attention meets on-chain flow"
+            description="Pulled from Elfa AI's social signal API. The cross-reference is what catches narrative-driven moves before the chain does."
+            meta="powered by Elfa AI"
+          />
+          <MindshareStrip />
+        </section>
+
         <HowItWorks />
+        <AvailableOnVirtuals />
         <BuiltOn />
         <CTABanner />
       </div>
