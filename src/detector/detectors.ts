@@ -203,10 +203,11 @@ export async function detectWhaleMoves(): Promise<Detection[]> {
       metrics: { usd, amount: r.amount },
       actors,
       txExamples: [r.txHash],
-      // Dedupe by (kind, token, $500k bucket) so DEX swap legs and recurring
-      // round-number flows ($3.50M / $3.54M / $3.62M) collapse to one alert
-      // per cooldown window. Was per-txHash; that fired every swap leg.
-      cooldownKey: `whale_move:${symbol}:${Math.round(usd / 500_000)}`,
+      // Dedupe by (kind, token, from, to). Recurring market-makers running
+      // the same (from→to) swap pair get silenced for the cooldown window
+      // regardless of amount drift. A different wallet doing a new $3.5M
+      // move still alerts (that's actual news).
+      cooldownKey: `whale_move:${symbol}:${r.fromAddr.slice(0, 10)}-${r.toAddr.slice(0, 10)}`,
     });
   }
 

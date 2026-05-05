@@ -29,7 +29,9 @@ const schema = z.object({
    *  scales from there: $25k=sev2, $50k=sev3 (Telegram floor), $125k+=sev5
    *  (attestation floor). */
   WHALE_USD_THRESHOLD: z.coerce.number().default(25_000),
-  ALERT_COOLDOWN_MIN: z.coerce.number().default(30),
+  /** Cooldown is per (kind, token, from, to). 4h floor — recurring MM pairs
+   *  get silenced for hours, not minutes. A genuinely new pair still alerts. */
+  ALERT_COOLDOWN_MIN: z.coerce.number().default(240),
   /** Skip on-chain attestation for alerts below this severity (1-5).
    *  Default 5 = only the highest-conviction calls + the daily digest get pinned. */
   ATTESTATION_SEVERITY_FLOOR: z.coerce.number().default(5),
