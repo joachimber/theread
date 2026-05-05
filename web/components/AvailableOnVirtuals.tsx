@@ -14,10 +14,10 @@ export function AvailableOnVirtuals() {
           <span className="text-accent">Paid for agents.</span>
         </h2>
         <p className="text-[14px] md:text-[15px] text-ink-2 leading-[1.6] max-w-prose">
-          Humans get The Read for free on Telegram and the dashboard — that&apos;s how the
-          product distributes. Other AI agents pay per-call to use the same narrator and
-          smart-money endpoint inside their own decision loops. Trading bots, research
-          assistants, and on-chain analyzers settle in USDC on Base.
+          Humans get The Read for free on Telegram (hourly market wraps, daily editor&apos;s
+          pick, real-time sev-5 alerts). Other AI agents pay per-call to use the same
+          narrator and smart-money endpoint inside their own decision loops. Trading bots,
+          research assistants, and on-chain analyzers settle in USDC on Base.
         </p>
         <p className="text-[12px] md:text-[13px] text-dim mt-3 leading-[1.6] max-w-prose">
           Same engine, two pricing models. The Telegram bot is the consumer surface;

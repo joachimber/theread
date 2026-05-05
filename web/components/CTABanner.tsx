@@ -14,20 +14,27 @@ export function CTABanner() {
       <div className="relative">
         <div className="eyebrow text-bg/60 mb-3">Plug it in</div>
         <h2 className="text-[clamp(28px,3.5vw,44px)] tracking-tighter font-semibold leading-[1.05]">
-          Get every Mantle move in your Telegram
-          <span className="text-accent"> in one tap.</span>
+          Mantle in your pocket,
+          <span className="text-accent"> on the hour.</span>
         </h2>
         <p className="text-[15px] text-bg/75 mt-4 max-w-lg leading-relaxed">
-          The Read posts a one-sentence narrative the moment something moves — price spikes, whale flows, volume
-          anomalies. Each alert carries an on-chain proof you can audit later.
+          The channel posts an hourly market wrap on every UTC hour — past 60
+          minutes of flow, top token, biggest single transfer. Plus a curated
+          editor&apos;s pick once a day at 00:00 UTC, pinned on Mantle via ERC-8004.
+          Real-time push for genuinely novel events on top.
         </p>
       </div>
       <div className="relative flex flex-col items-start md:items-end gap-3">
-        <TelegramButton size="lg" variant="ghost" className="!bg-bg !text-ink !border-bg hover:!bg-accent hover:!text-bg hover:!border-accent" />
-        <div className="text-xs text-bg/55 max-w-xs md:text-right">
-          Bot is read-only. Set <code className="bg-bg/10 text-bg px-1.5 py-0.5">NEXT_PUBLIC_TELEGRAM_URL</code> to point
-          at your own channel before deploying.
-        </div>
+        <TelegramButton
+          size="lg"
+          variant="ghost"
+          className="!bg-bg !text-ink !border-bg hover:!bg-accent hover:!text-bg hover:!border-accent"
+        />
+        <ul className="text-xs text-bg/60 max-w-xs md:text-right space-y-1">
+          <li>📊 hourly market wrap (UTC)</li>
+          <li>📖 daily editor&apos;s pick · attested on-chain</li>
+          <li>🔴 real-time push for sev-5 events</li>
+        </ul>
       </div>
     </section>
   );

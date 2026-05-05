@@ -101,7 +101,8 @@ export default async function HomePage() {
               </a>
             </div>
             <p className="mt-3 text-[12px] text-dim">
-              Free for humans. Per-call USDC for agents.{" "}
+              Hourly market wraps · daily editor&apos;s pick at 00:00 UTC · real-time push for sev-5
+              events · per-call USDC for agents.{" "}
               <a href="#feed" className="link">See live feed ↓</a>
             </p>
           </div>
