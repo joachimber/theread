@@ -79,10 +79,8 @@ export default async function HomePage() {
               <span className="text-line">/</span>
               <LiveDot lastTs={snap.blockTs.getTime()} />
             </div>
-            <h1 className="text-[clamp(36px,7vw,96px)] leading-[0.98] tracking-tightest font-semibold text-ink">
-              Every Mantle move,
-              <br />
-              <span className="text-accent">in one sentence.</span>
+            <h1 className="text-[clamp(36px,7vw,96px)] leading-[0.98] tracking-tightest font-semibold text-ink text-balance">
+              Every Mantle move, <span className="text-accent">in one sentence.</span>
             </h1>
             <p className="text-[15px] md:text-[20px] text-ink-2 mt-5 md:mt-7 max-w-2xl leading-[1.55]">
               The Read is an autonomous agent that watches Mantle 24/7. It calls out price spikes, volume
