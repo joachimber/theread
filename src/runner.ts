@@ -8,6 +8,7 @@ import { runDetectorLoop } from "./detector/runner.js";
 import { startTelegramBot } from "./bot/telegram.js";
 import { runHeuristicLabelers } from "./indexer/labels.js";
 import { runDailyDigest } from "./scripts/daily-digest.js";
+import { runHourlyDigest } from "./scripts/hourly-digest.js";
 import { log } from "./lib/log.js";
 
 async function main(): Promise<void> {
@@ -24,6 +25,11 @@ async function main(): Promise<void> {
   // Daily digest — fires at 00:00 UTC, picks the day's biggest read,
   // posts to Telegram with editorial framing, attests on-chain.
   scheduleDailyDigest();
+
+  // Hourly market wrap — fires every UTC hour. Always posts (with "Mantle
+  // was quiet" if no transfers), so the channel has predictable rhythm
+  // regardless of whether any single event crossed an alert threshold.
+  scheduleHourlyDigest();
 
   await Promise.all([
     runIndexer().catch((err) => log.fatal({ err: String(err) }, "indexer crashed")),
@@ -53,6 +59,30 @@ function scheduleDailyDigest(): void {
   log.info(
     { hoursUntilFirstTick: (msUntilNextUtcMidnight() / 3_600_000).toFixed(2) },
     "daily digest scheduled",
+  );
+}
+
+function msUntilNextUtcHour(): number {
+  const now = new Date();
+  const next = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours() + 1, 0, 0),
+  );
+  return next.getTime() - now.getTime();
+}
+
+function scheduleHourlyDigest(): void {
+  const tick = async () => {
+    try {
+      await runHourlyDigest();
+    } catch (err) {
+      log.error({ err: String(err) }, "hourly-digest tick failed");
+    }
+    setTimeout(tick, msUntilNextUtcHour());
+  };
+  setTimeout(tick, msUntilNextUtcHour());
+  log.info(
+    { minUntilFirstTick: (msUntilNextUtcHour() / 60_000).toFixed(1) },
+    "hourly digest scheduled",
   );
 }
 
