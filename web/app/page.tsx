@@ -83,9 +83,10 @@ export default async function HomePage() {
               Every Mantle move, <span className="text-accent">in one sentence.</span>
             </h1>
             <p className="text-[15px] md:text-[20px] text-ink-2 mt-5 md:mt-7 max-w-2xl leading-[1.55]">
-              The Read is an autonomous agent that watches Mantle 24/7. It calls out price spikes, volume
-              anomalies, and whale flows the moment they happen, names the wallets behind them, and pins each
-              alert hash on-chain via an ERC-8004 agent identity NFT.
+              The Read is an autonomous agent that watches Mantle 24/7 across three surfaces:
+              a dashboard that re-renders against every block, a Telegram channel that posts an
+              hourly market wrap plus a curated daily edition, and an on-chain log where the
+              day&apos;s pick and every severity-5 event are pinned via ERC-8004.
             </p>
             <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-6 md:mt-9">
               <TelegramButton size="lg" label="Open in Telegram · free" />
